@@ -24,7 +24,7 @@
   </entry>
   <entry>
     <title>nginx反向代理</title>
-    <url>/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</url>
+    <url>/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</url>
     <content><![CDATA[<h3 id="nginx反向代理"><a href="#nginx反向代理" class="headerlink" title="nginx反向代理"></a>nginx反向代理</h3><h4 id="什么叫反向代理？"><a href="#什么叫反向代理？" class="headerlink" title="什么叫反向代理？"></a>什么叫反向代理？</h4><p>反向代理就是用一个代理服务器代替用户转发请求到真实服务器，从而达到隐藏目标服务器的需求。</p>
 <h4 id="反向代理的用途"><a href="#反向代理的用途" class="headerlink" title="反向代理的用途"></a>反向代理的用途</h4><p>动静分离，负载均衡都是基于反向代理来实现的。</p>
 <p>示意图：</p>
