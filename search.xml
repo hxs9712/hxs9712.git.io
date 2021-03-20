@@ -1,40 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>nginx反向代理</title>
-    <url>/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</url>
-    <content><![CDATA[<h3 id="nginx反向代理"><a href="#nginx反向代理" class="headerlink" title="nginx反向代理"></a>nginx反向代理</h3><h4 id="什么叫反向代理？"><a href="#什么叫反向代理？" class="headerlink" title="什么叫反向代理？"></a>什么叫反向代理？</h4><p>反向代理就是用一个代理服务器代替用户转发请求到真实服务器，从而达到隐藏目标服务器的需求。</p>
-<h4 id="反向代理的用途"><a href="#反向代理的用途" class="headerlink" title="反向代理的用途"></a>反向代理的用途</h4><p>动静分离，负载均衡都是基于反向代理来实现的。</p>
-<p>示意图：</p>
-<p><img src="/images/image-20210111190904926.png" alt="image-20210111190904926"></p>
-<p>客户发送请求到代理服务器，服务器根据一定的标识符分发到目标服务器。</p>
-<h3 id="反向代理实例"><a href="#反向代理实例" class="headerlink" title="反向代理实例"></a>反向代理实例</h3><p>下面是一个最基础的反向代理的配置，修改nginx.conf文件，增加一个server模块，主要配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">                 location &#x2F; &#123;</span><br><span class="line">                            proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;#目标服务器地址</span><br><span class="line">                 &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>浏览器访问：<a href="http://test.com,就可以得到http//127.0.0.1:3000%E7%9A%84%E5%86%85%E5%AE%B9%E4%BA%86%EF%BC%9B">http://test.com，就可以得到http://127.0.0.1:3000的内容了；</a></p>
-<h4 id="怎么用一个服务器代理多台服务器"><a href="#怎么用一个服务器代理多台服务器" class="headerlink" title="怎么用一个服务器代理多台服务器"></a>怎么用一个服务器代理多台服务器</h4><p>上面我们学习的一个服务器只能代理一台服务器，那怎么才能代理多台服务器呢？下面是示意图：</p>
-<p><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=924703378,2436109990&fm=26&gp=0.jpg" alt="img"></p>
-<p>客户访问代理服务器，代理服务器根据不同的标识（规则）把请求分发到目标服务器，那这是怎么做到的呢？其实很简单，只需要用location去匹配相应的规则，便能达到分发请求的目的。</p>
-<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">        location &#x2F;first &#123;</span><br><span class="line">       		 proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;</span><br><span class="line">        &#125;</span><br><span class="line">        location &#x2F;second &#123;</span><br><span class="line">       		 proxy_pass http:&#x2F;&#x2F;127.0.0.1:3001;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，相较于上面的单台代理的配置文件，location部分发生了变化，这个变化也就是location用来匹配url的规则，此时，nginx会根据访问路径来分发请求给目标服务器；</p>
-<p><a href="http://test.com/first">http://test.com/first</a> 会请求 <a href="http://127.0.0.1:3000/">http://127.0.0.1:3000</a></p>
-<p><a href="http://test.com/second">http://test.com/second</a> 会请求 <a href="http://127.0.0.1:3001/">http://127.0.0.1:3001</a></p>
-<p>location会根据域名后的字符来匹配相应的代理服务器</p>
-<h4 id="location匹配规则（重点）"><a href="#location匹配规则（重点）" class="headerlink" title="location匹配规则（重点）"></a>location匹配规则（重点）</h4><p>语法规则：</p>
-<p><img src="/images/image-20210113150828680.png" alt="image-20210113150828680"></p>
-<p>location匹配规则主要有三种，并且它们的优先级如下：</p>
-<p>1、精确匹配</p>
-<p>2、正则匹配</p>
-<p>3、通用匹配</p>
-<p>注意：<em>location匹配规则与编写顺序无关</em></p>
-<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">   #规则A</span><br><span class="line">&#125;</span><br><span class="line">location &#x3D; &#x2F;login &#123;</span><br><span class="line">   #规则B</span><br><span class="line">&#125;</span><br><span class="line">location ^~ &#x2F;static&#x2F; &#123;</span><br><span class="line">   #规则C</span><br><span class="line">&#125;</span><br><span class="line">location ~ \.(gif|jpg|png|js|css)$ &#123;</span><br><span class="line">   #规则D</span><br><span class="line">&#125;</span><br><span class="line">location ~* \.png$ &#123;</span><br><span class="line">   #规则E</span><br><span class="line">&#125;</span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">   #规则F</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在这些规则同时存在的情况下，匹配优先级如下：</p>
-<p>访问 <a href="http://localhost/">http://localhost/</a> 将匹配规则 A<br>访问 <a href="http://localhost/login">http://localhost/login</a> 将匹配规则 B，<a href="http://localhost/register">http://localhost/register</a> 则匹配规则 F<br>访问 <a href="http://localhost/static/a.html">http://localhost/static/a.html</a> 将匹配规则 C<br>访问 <a href="http://localhost/a.gif">http://localhost/a.gif</a>, <a href="http://localhost/b.jpg">http://localhost/b.jpg</a> 将匹配规则 D和规则 E，但是规则 D 顺序优先，规则 E不起作用，而 <a href="http://localhost/static/c.png%E5%88%99%E4%BC%98%E5%85%88%E5%8C%B9%E9%85%8D%E5%88%B0%E8%A7%84%E5%88%99">http://localhost/static/c.png则优先匹配到规则</a> C<br>访问 <a href="http://localhost/a.PNG">http://localhost/a.PNG</a> 则匹配规则 E，而不会匹配规则 D，因为规则 E 不区分大小写<br>访问 <a href="http://localhost/category/id/1111">http://localhost/category/id/1111</a> 则最终匹配到规则 F，因为以上规则都不匹配，这个时候应该是 nginx 转发请求给后端应用服务器，比如 FastCGI（PHP），tomcat（jsp），nginx 作为反向代理服务器存在</p>
+    <title>composer内存溢出问题解决</title>
+    <url>/2021/03/20/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <content><![CDATA[<p>php -d memory_limit=-1 /usr/bin/composer update</p>
+<p>此处的composer需要用全路径</p>
 ]]></content>
       <categories>
-        <category>Nginx</category>
+        <category>Composer</category>
       </categories>
       <tags>
-        <tag>Nginx</tag>
+        <tag>Composer</tag>
       </tags>
   </entry>
   <entry>
@@ -51,6 +27,36 @@
 <p>此时访问<a href="http://test.com/api%E4%BE%BF%E4%BC%9A%E8%AF%B7%E6%B1%82%E5%88%B0">http://test.com/api便会请求到</a><u><em>后端访问目录</em></u>，</p>
 <p>访问<a href="http://test.com便会请求到/">http://test.com便会请求到</a><u><em>前端访问目录</em></u></p>
 <p>此配置方案也可用于解决前后端分离引起的跨域问题</p>
+]]></content>
+      <categories>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>nginx负载均衡</title>
+    <url>/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
+    <content><![CDATA[<h4 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h4><p>随着社会的快速发展，人们对性能的要求越来越苛刻，一些大型网站用一台服务器根本就无法应对庞大的用户群，服务器压力越来越大，我们可能首先会将数据库，静态文件分离出去。但是随着发展，单独业务API的请求的压力也会变得很大，这时候我们可能需要做负载均衡将一台服务器面临的压力分散到多台服务器上。</p>
+<p>负载均衡就是把原来一台服务器要干的事情通过反向代理，变成多台服务器一起干。</p>
+<h4 id="nginx负载均衡配置"><a href="#nginx负载均衡配置" class="headerlink" title="nginx负载均衡配置"></a>nginx负载均衡配置</h4><p>nginx的负载均衡主要是对proxy_pass和upstream的配置,简单配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http &#123;    </span><br><span class="line">	#upstream主要配置需要用到的服务器及负载均衡策略</span><br><span class="line">	#upstream_name为自己定义的策略名</span><br><span class="line">    upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;     </span><br><span class="line">    server &#123;       </span><br><span class="line">    listen       8080;       </span><br><span class="line">    server_name  localhost;  </span><br><span class="line">    location &#x2F; &#123;           </span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;upstream_name;#使用负载均衡策略，注意策略名不要写错 </span><br><span class="line">        proxy_set_header Host $host;      </span><br><span class="line">        proxy_set_header X-Real-IP $remote_addr;  </span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;   </span><br><span class="line">    &#125;  </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="nginx负载均衡策略"><a href="#nginx负载均衡策略" class="headerlink" title="nginx负载均衡策略"></a>nginx负载均衡策略</h4><p>负载均衡策略有5种：轮询（默认）、权重、ip_hash、least_conn、fair</p>
+<h5 id="轮询（默认）"><a href="#轮询（默认）" class="headerlink" title="轮询（默认）"></a>轮询（默认）</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125; </span><br></pre></td></tr></table></figure>
+<p>最基本的配置方法，upstream的默认策略，它会根据请求时间来轮流分配请求到不同的服务器，基本参数如下：</p>
+<p><img src="/images/image-20210113160530587.png" alt="image-20210113160530587"></p>
+<p>注意：在轮询中，如果服务器down掉了，会自动剔除该服务器，此策略适合服务器配置相当，无状态且短平快的服务使用</p>
+<h5 id="权重"><a href="#权重" class="headerlink" title="权重"></a>权重</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p> 增加了参数weight，值与请求数量成正比，比如此时发来了3个请求，8001接收1个，8002接收2个，以此循环</p>
+<h5 id="ip-hash"><a href="#ip-hash" class="headerlink" title="ip_hash"></a>ip_hash</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;       </span><br><span class="line">		ip_hash;</span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。</p>
+<p>注意：适合有状态（比如session）的服务使用</p>
+<h5 id="least-conn"><a href="#least-conn" class="headerlink" title="least_conn"></a>least_conn</h5><p>选取一个连接数与权重weight比值最小的一个处理下一次请求。当然，已达到最大连接数的server照例不在选择的范围。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		least_conn;    </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">        server 192.168.0.28:8003 weight&#x3D;4;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>比如上一次请求了8002，此时8001连接数为80，8003连接数为150，计算结果80/2=40，150/4=37.5，37.5&lt;40,故下次请求选择8003</p>
+<h5 id="fair"><a href="#fair" class="headerlink" title="fair"></a>fair</h5><p>fair根据服务器的响应时间来分发下次请求</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		fair;    </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">        server 192.168.0.28:8003;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>Nginx</category>
@@ -79,27 +85,34 @@
       </tags>
   </entry>
   <entry>
-    <title>nginx负载均衡</title>
-    <url>/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
-    <content><![CDATA[<h4 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h4><p>随着社会的快速发展，人们对性能的要求越来越苛刻，一些大型网站用一台服务器根本就无法应对庞大的用户群，服务器压力越来越大，我们可能首先会将数据库，静态文件分离出去。但是随着发展，单独业务API的请求的压力也会变得很大，这时候我们可能需要做负载均衡将一台服务器面临的压力分散到多台服务器上。</p>
-<p>负载均衡就是把原来一台服务器要干的事情通过反向代理，变成多台服务器一起干。</p>
-<h4 id="nginx负载均衡配置"><a href="#nginx负载均衡配置" class="headerlink" title="nginx负载均衡配置"></a>nginx负载均衡配置</h4><p>nginx的负载均衡主要是对proxy_pass和upstream的配置,简单配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http &#123;    </span><br><span class="line">	#upstream主要配置需要用到的服务器及负载均衡策略</span><br><span class="line">	#upstream_name为自己定义的策略名</span><br><span class="line">    upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;     </span><br><span class="line">    server &#123;       </span><br><span class="line">    listen       8080;       </span><br><span class="line">    server_name  localhost;  </span><br><span class="line">    location &#x2F; &#123;           </span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;upstream_name;#使用负载均衡策略，注意策略名不要写错 </span><br><span class="line">        proxy_set_header Host $host;      </span><br><span class="line">        proxy_set_header X-Real-IP $remote_addr;  </span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;   </span><br><span class="line">    &#125;  </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="nginx负载均衡策略"><a href="#nginx负载均衡策略" class="headerlink" title="nginx负载均衡策略"></a>nginx负载均衡策略</h4><p>负载均衡策略有5种：轮询（默认）、权重、ip_hash、least_conn、fair</p>
-<h5 id="轮询（默认）"><a href="#轮询（默认）" class="headerlink" title="轮询（默认）"></a>轮询（默认）</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125; </span><br></pre></td></tr></table></figure>
-<p>最基本的配置方法，upstream的默认策略，它会根据请求时间来轮流分配请求到不同的服务器，基本参数如下：</p>
-<p><img src="/images/image-20210113160530587.png" alt="image-20210113160530587"></p>
-<p>注意：在轮询中，如果服务器down掉了，会自动剔除该服务器，此策略适合服务器配置相当，无状态且短平快的服务使用</p>
-<h5 id="权重"><a href="#权重" class="headerlink" title="权重"></a>权重</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p> 增加了参数weight，值与请求数量成正比，比如此时发来了3个请求，8001接收1个，8002接收2个，以此循环</p>
-<h5 id="ip-hash"><a href="#ip-hash" class="headerlink" title="ip_hash"></a>ip_hash</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;       </span><br><span class="line">		ip_hash;</span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。</p>
-<p>注意：适合有状态（比如session）的服务使用</p>
-<h5 id="least-conn"><a href="#least-conn" class="headerlink" title="least_conn"></a>least_conn</h5><p>选取一个连接数与权重weight比值最小的一个处理下一次请求。当然，已达到最大连接数的server照例不在选择的范围。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		least_conn;    </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">        server 192.168.0.28:8003 weight&#x3D;4;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>比如上一次请求了8002，此时8001连接数为80，8003连接数为150，计算结果80/2=40，150/4=37.5，37.5&lt;40,故下次请求选择8003</p>
-<h5 id="fair"><a href="#fair" class="headerlink" title="fair"></a>fair</h5><p>fair根据服务器的响应时间来分发下次请求</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		fair;    </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">        server 192.168.0.28:8003;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+    <title>nginx反向代理</title>
+    <url>/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</url>
+    <content><![CDATA[<h3 id="nginx反向代理"><a href="#nginx反向代理" class="headerlink" title="nginx反向代理"></a>nginx反向代理</h3><h4 id="什么叫反向代理？"><a href="#什么叫反向代理？" class="headerlink" title="什么叫反向代理？"></a>什么叫反向代理？</h4><p>反向代理就是用一个代理服务器代替用户转发请求到真实服务器，从而达到隐藏目标服务器的需求。</p>
+<h4 id="反向代理的用途"><a href="#反向代理的用途" class="headerlink" title="反向代理的用途"></a>反向代理的用途</h4><p>动静分离，负载均衡都是基于反向代理来实现的。</p>
+<p>示意图：</p>
+<p><img src="/images/image-20210111190904926.png" alt="image-20210111190904926"></p>
+<p>客户发送请求到代理服务器，服务器根据一定的标识符分发到目标服务器。</p>
+<h3 id="反向代理实例"><a href="#反向代理实例" class="headerlink" title="反向代理实例"></a>反向代理实例</h3><p>下面是一个最基础的反向代理的配置，修改nginx.conf文件，增加一个server模块，主要配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">                 location &#x2F; &#123;</span><br><span class="line">                            proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;#目标服务器地址</span><br><span class="line">                 &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+<p>浏览器访问：<a href="http://test.com,就可以得到http//127.0.0.1:3000%E7%9A%84%E5%86%85%E5%AE%B9%E4%BA%86%EF%BC%9B">http://test.com，就可以得到http://127.0.0.1:3000的内容了；</a></p>
+<h4 id="怎么用一个服务器代理多台服务器"><a href="#怎么用一个服务器代理多台服务器" class="headerlink" title="怎么用一个服务器代理多台服务器"></a>怎么用一个服务器代理多台服务器</h4><p>上面我们学习的一个服务器只能代理一台服务器，那怎么才能代理多台服务器呢？下面是示意图：</p>
+<p><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=924703378,2436109990&fm=26&gp=0.jpg" alt="img"></p>
+<p>客户访问代理服务器，代理服务器根据不同的标识（规则）把请求分发到目标服务器，那这是怎么做到的呢？其实很简单，只需要用location去匹配相应的规则，便能达到分发请求的目的。</p>
+<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">        location &#x2F;first &#123;</span><br><span class="line">       		 proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;</span><br><span class="line">        &#125;</span><br><span class="line">        location &#x2F;second &#123;</span><br><span class="line">       		 proxy_pass http:&#x2F;&#x2F;127.0.0.1:3001;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，相较于上面的单台代理的配置文件，location部分发生了变化，这个变化也就是location用来匹配url的规则，此时，nginx会根据访问路径来分发请求给目标服务器；</p>
+<p><a href="http://test.com/first">http://test.com/first</a> 会请求 <a href="http://127.0.0.1:3000/">http://127.0.0.1:3000</a></p>
+<p><a href="http://test.com/second">http://test.com/second</a> 会请求 <a href="http://127.0.0.1:3001/">http://127.0.0.1:3001</a></p>
+<p>location会根据域名后的字符来匹配相应的代理服务器</p>
+<h4 id="location匹配规则（重点）"><a href="#location匹配规则（重点）" class="headerlink" title="location匹配规则（重点）"></a>location匹配规则（重点）</h4><p>语法规则：</p>
+<p><img src="/images/image-20210113150828680.png" alt="image-20210113150828680"></p>
+<p>location匹配规则主要有三种，并且它们的优先级如下：</p>
+<p>1、精确匹配</p>
+<p>2、正则匹配</p>
+<p>3、通用匹配</p>
+<p>注意：<em>location匹配规则与编写顺序无关</em></p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">   #规则A</span><br><span class="line">&#125;</span><br><span class="line">location &#x3D; &#x2F;login &#123;</span><br><span class="line">   #规则B</span><br><span class="line">&#125;</span><br><span class="line">location ^~ &#x2F;static&#x2F; &#123;</span><br><span class="line">   #规则C</span><br><span class="line">&#125;</span><br><span class="line">location ~ \.(gif|jpg|png|js|css)$ &#123;</span><br><span class="line">   #规则D</span><br><span class="line">&#125;</span><br><span class="line">location ~* \.png$ &#123;</span><br><span class="line">   #规则E</span><br><span class="line">&#125;</span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">   #规则F</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这些规则同时存在的情况下，匹配优先级如下：</p>
+<p>访问 <a href="http://localhost/">http://localhost/</a> 将匹配规则 A<br>访问 <a href="http://localhost/login">http://localhost/login</a> 将匹配规则 B，<a href="http://localhost/register">http://localhost/register</a> 则匹配规则 F<br>访问 <a href="http://localhost/static/a.html">http://localhost/static/a.html</a> 将匹配规则 C<br>访问 <a href="http://localhost/a.gif">http://localhost/a.gif</a>, <a href="http://localhost/b.jpg">http://localhost/b.jpg</a> 将匹配规则 D和规则 E，但是规则 D 顺序优先，规则 E不起作用，而 <a href="http://localhost/static/c.png%E5%88%99%E4%BC%98%E5%85%88%E5%8C%B9%E9%85%8D%E5%88%B0%E8%A7%84%E5%88%99">http://localhost/static/c.png则优先匹配到规则</a> C<br>访问 <a href="http://localhost/a.PNG">http://localhost/a.PNG</a> 则匹配规则 E，而不会匹配规则 D，因为规则 E 不区分大小写<br>访问 <a href="http://localhost/category/id/1111">http://localhost/category/id/1111</a> 则最终匹配到规则 F，因为以上规则都不匹配，这个时候应该是 nginx 转发请求给后端应用服务器，比如 FastCGI（PHP），tomcat（jsp），nginx 作为反向代理服务器存在</p>
 ]]></content>
       <categories>
         <category>Nginx</category>

@@ -6,7 +6,7 @@
   <link href="https://hxs9712.github.io/atom.xml" rel="self"/>
   
   <link href="https://hxs9712.github.io/"/>
-  <updated>2021-03-12T02:15:33.929Z</updated>
+  <updated>2021-03-20T04:24:44.774Z</updated>
   <id>https://hxs9712.github.io/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>composer内存溢出问题解决</title>
+    <link href="https://hxs9712.github.io/2021/03/20/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>https://hxs9712.github.io/2021/03/20/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
+    <published>2021-03-20T04:24:44.774Z</published>
+    <updated>2021-03-20T04:24:44.774Z</updated>
+    
+    <content type="html"><![CDATA[<p>php -d memory_limit=-1 /usr/bin/composer update</p><p>此处的composer需要用全路径</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;php -d memory_limit=-1 /usr/bin/composer update&lt;/p&gt;
+&lt;p&gt;此处的composer需要用全路径&lt;/p&gt;
+</summary>
+      
+    
+    
+    
+    <category term="Composer" scheme="https://hxs9712.github.io/categories/Composer/"/>
+    
+    
+    <category term="Composer" scheme="https://hxs9712.github.io/tags/Composer/"/>
+    
+  </entry>
   
   <entry>
     <title>rand()查询效率问题解决</title>
