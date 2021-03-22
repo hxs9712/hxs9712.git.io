@@ -6,7 +6,7 @@
   <link href="https://hxs9712.github.io/atom.xml" rel="self"/>
   
   <link href="https://hxs9712.github.io/"/>
-  <updated>2021-03-20T04:24:44.774Z</updated>
+  <updated>2021-03-22T08:49:58.752Z</updated>
   <id>https://hxs9712.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>nginx反向代理session失效问题解决</title>
+    <link href="https://hxs9712.github.io/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>https://hxs9712.github.io/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
+    <published>2021-03-22T08:49:58.752Z</published>
+    <updated>2021-03-22T08:49:58.752Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="问题场景"><a href="#问题场景" class="headerlink" title="问题场景"></a>问题场景</h3><p>最近遇到一个做单点登录的需求，我准备简单做，也就是账号之间的互绑，比如A网站的账号关联上B网站的账号，登录了A网站之后再去B网站可以免登录，我是用nginx反向代理来解决的。</p><p>刚开始我是这么配置的：</p><p> <code>location /aLogin &#123;</code>             </p><p>​    <code>proxy_pass   http://a.com/aLogin;</code></p><p><code>&#125;</code></p><p>通过浏览器访问<a href="http://a.com/aLogin%E6%97%B6%EF%BC%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84cookie%E5%86%85%E6%9C%89jsessionid%E3%80%82%E5%86%8D%E6%AC%A1%E8%AE%BF%E9%97%AE%E6%97%B6%EF%BC%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%9A%E5%8F%91%E9%80%81%E5%BD%93%E5%89%8D%E7%9A%84cookie%E3%80%82">http://a.com/aLogin时，浏览器的cookie内有jsessionid。再次访问时，浏览器会发送当前的cookie。</a></p><p> <code>location /bLogin &#123;</code>             </p><p>​    <code>proxy_pass   http://b.com/bLogin;</code></p><p><code>&#125;</code></p><h5 id="此时我们先回顾一下session的创建过程："><a href="#此时我们先回顾一下session的创建过程：" class="headerlink" title="此时我们先回顾一下session的创建过程："></a>此时我们先回顾一下session的创建过程：</h5><p>1、当浏览器第一次打开页面时，服务端会为这次会话创建一个session，并将session id通过response的header传递给浏览器，header一般为 Set-Cookie: JSESSIONID=xxxxx; Path=xxxx<br>2、浏览器接收到响应后，如果header Set-Cookie 中path的值与浏览器地址路径匹配，则将该header值存于浏览器的Cookie中<br>3、浏览器在下次请求服务器时，将Cookie中的JSESSIONID值通过request的header上报给服务端，header一般为 Cookie: JSESSIONID=xxxx;<br>4、服务端可通过该JSESSIONID来定位到对应的session</p><p>浏览器访问 <a href="http://a.com/aLogin">http://a.com/aLogin</a> 时，服务端返回的 <code>Set-Cookie</code> 的 Path 值为 /aLogin （因为中间有反向代理，服务端并不知道代理前的路径是啥，是按最终请求服务端的路径设置）</p><p>因为浏览器访问地址的路径 <code>/bLogin 与 </code>Set-Cookie<code>的 Path</code>/aLogin  不匹配，所以浏览器并不会将其值存入Cookie中。</p><p>因此在下次请求服务器时，浏览器无法设置request Cookie header的 JSESSIONID 值，服务器无法定位到对应的session，因此会将其当做第一次请求，创建一个新的session，如此反复，因此就算你登录认证通过了，但服务器返回的登录凭证（JSESSIONID）浏览器不会保存，并在下次请求时携带，导致服务器认为你是一个新的请求，当然就会又跳到登录页面了。</p><h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>nginx有一个命令 proxy_cookie_path（参考： proxy_cookie_path）可将服务器返回的 Set-Cookie 中的path进行修改，格式为 proxy_cookie_path 原路径 目标路径，我们在配置中添加 proxy_cookie_path 如下。</p><ol><li><pre><code class="nginx"> location /bLogin/ &#123;     proxy_pass  http://b.com/bLogin/;*     proxy_cookie_path  /aLogin /bLogin;//注意此处的对应路径顺序 &#125;</code></pre></li></ol><p>重启nginx，结束。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;问题场景&quot;&gt;&lt;a href=&quot;#问题场景&quot; class=&quot;headerlink&quot; title=&quot;问题场景&quot;&gt;&lt;/a&gt;问题场景&lt;/h3&gt;&lt;p&gt;最近遇到一个做单点登录的需求，我准备简单做，也就是账号之间的互绑，比如A网站的账号关联上B网站的账号，登录了A网站之后再去B</summary>
+      
+    
+    
+    
+    <category term="Nginx" scheme="https://hxs9712.github.io/categories/Nginx/"/>
+    
+    
+    <category term="Nginx" scheme="https://hxs9712.github.io/tags/Nginx/"/>
+    
+  </entry>
   
   <entry>
     <title>composer内存溢出问题解决</title>
