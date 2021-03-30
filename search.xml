@@ -213,15 +213,14 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>禁止底层滚动</title>
     <url>/2021/03/30/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/</url>
-    <content><![CDATA[<hr>
-<p> title: 禁止底层滚动<br> categories:</p>
-<ul>
-<li>微信小程序<br>tags:</li>
-<li>微信小程序</li>
-</ul>
-<hr>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">myCatchTouch:function(e)&#123;</span><br><span class="line"></span><br><span class="line"> return;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+    <content><![CDATA[<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">myCatchTouch:function(e)&#123;</span><br><span class="line"></span><br><span class="line"> return;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>微信小程序</category>
+      </categories>
+      <tags>
+        <tag>微信小程序</tag>
+      </tags>
   </entry>
 </search>
