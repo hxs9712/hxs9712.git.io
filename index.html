@@ -422,6 +422,9 @@
             <p>简单粗暴的解决办法，用以下命令新建一个共享目录（暂时还没有发现更好用的处理方法）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.创建文件夹</span><br><span class="line">mkdir &#x2F;mnt&#x2F;win</span><br><span class="line">2.把共享文件挂载到&#x2F;mnt&#x2F;win这个目录</span><br><span class="line">&#x2F;usr&#x2F;bin&#x2F;vmhgfs-fuse .host:&#x2F; &#x2F;mnt&#x2F;win -o subtype&#x3D;vmhgfs-fuse,allow_other</span><br></pre></td></tr></table></figure>
 
+
+<p>这里有更详细的解释：<a target="_blank" rel="noopener" href="https://blog.csdn.net/wangdonghao137/article/details/54925330">https://blog.csdn.net/wangdonghao137/article/details/54925330</a></p>
+
           
         
       
