@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="redis," />
 
 
 
@@ -98,14 +98,15 @@
 
 <meta name="description" content="内容简介String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。基本操作Set和Get：写值和取值123456D:\language_env\redis&gt;redis-cli.exe127.0.0.1:6379&gt; set k1 v1OK127">
 <meta property="og:type" content="article">
-<meta property="og:title" content="可能是个疯子">
+<meta property="og:title" content="String字符串类型详解（上）">
 <meta property="og:url" content="https://hxs9712.github.io/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/index.html">
 <meta property="og:site_name" content="可能是个疯子">
 <meta property="og:description" content="内容简介String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。基本操作Set和Get：写值和取值123456D:\language_env\redis&gt;redis-cli.exe127.0.0.1:6379&gt; set k1 v1OK127">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-05-14T04:06:18.228Z">
-<meta property="article:modified_time" content="2021-05-14T04:04:48.453Z">
+<meta property="article:modified_time" content="2021-05-14T04:33:46.244Z">
 <meta property="article:author" content="IT疯子">
+<meta property="article:tag" content="redis">
 <meta name="twitter:card" content="summary">
 
 
@@ -141,7 +142,7 @@
 
 
 
-  <title> | 可能是个疯子</title>
+  <title>String字符串类型详解（上） | 可能是个疯子</title>
   
 
 
@@ -345,7 +346,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">String字符串类型详解（上）</h1>
         
 
         <div class="post-meta">
@@ -367,6 +368,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -465,6 +488,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+        </div>
+      
 
       
       
@@ -484,8 +513,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/" rel="prev" title="">
-                 <i class="fa fa-chevron-right"></i>
+              <a href="/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/" rel="prev" title="String字符串类型详解（下）">
+                String字符串类型详解（下） <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -576,7 +605,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -587,7 +616,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
