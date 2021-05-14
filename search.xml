@@ -240,9 +240,9 @@
       </tags>
   </entry>
   <entry>
-    <title>String字符串类型详解</title>
-    <url>/2021/05/13/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><h5 id="Set和Get：写值和取值"><a href="#Set和Get：写值和取值" class="headerlink" title="Set和Get：写值和取值"></a>Set和Get：写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\language_env\redis&gt;redis-cli.exe</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+    <title></title>
+    <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
+    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><h5 id="String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"><a href="#String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。" class="headerlink" title="String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"></a><u>String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。</u></h5><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><h5 id="Set和Get：写值和取值"><a href="#Set和Get：写值和取值" class="headerlink" title="Set和Get：写值和取值"></a>Set和Get：写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\language_env\redis&gt;redis-cli.exe</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
 <h5 id="EXISTS：检测key是否存在"><a href="#EXISTS：检测key是否存在" class="headerlink" title="EXISTS：检测key是否存在"></a>EXISTS：检测key是否存在</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; EXISTS k1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
 <h5 id="mset和mget：批量写值和取值"><a href="#mset和mget：批量写值和取值" class="headerlink" title="mset和mget：批量写值和取值"></a>mset和mget：批量写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset k1 v1 k2 v2 k3 v3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k2</span><br><span class="line">1) &quot;v2&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
 <h5 id="keys：查看所有key"><a href="#keys：查看所有key" class="headerlink" title="keys：查看所有key"></a>keys：查看所有key</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;k2&quot;</span><br><span class="line">2) &quot;k3&quot;</span><br><span class="line">3) &quot;k1&quot;</span><br></pre></td></tr></table></figure>
@@ -264,11 +264,14 @@
 
 
 ]]></content>
-      <categories>
-        <category>redis</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</url>
+    <content><![CDATA[<h4 id="隐藏技巧"><a href="#隐藏技巧" class="headerlink" title="隐藏技巧"></a>隐藏技巧</h4><h5 id="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"><a href="#SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；" class="headerlink" title="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"></a>SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1,hello</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; setrange k1 2 ww</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange k1 2 7</span><br><span class="line">&quot;wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="SETEX：设置过期时间"><a href="#SETEX：设置过期时间" class="headerlink" title="SETEX：设置过期时间"></a>SETEX：设置过期时间</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setex k2 5 v2 #设置过期时间为5秒</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"><a href="#SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功" class="headerlink" title="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"></a>SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1 #以为k1是存在的，所以返回0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx k3 v3 #以为k3是不存在的，所以返回1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1      #此处可以发现k1依然为旧值</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<p>综合上篇总结，基本上就是Redis中能处理String字符串的所有方法了，有90%的程序员只会set，get，会用了这些，你就是那10%；</p>
+]]></content>
   </entry>
 </search>
