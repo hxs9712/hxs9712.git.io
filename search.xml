@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>String字符串类型详解（下）</title>
+    <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</url>
+    <content><![CDATA[<h4 id="隐藏技巧"><a href="#隐藏技巧" class="headerlink" title="隐藏技巧"></a>隐藏技巧</h4><h5 id="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"><a href="#SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；" class="headerlink" title="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"></a>SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1,hello</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; setrange k1 2 ww</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange k1 2 7</span><br><span class="line">&quot;wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="SETEX：设置过期时间"><a href="#SETEX：设置过期时间" class="headerlink" title="SETEX：设置过期时间"></a>SETEX：设置过期时间</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setex k2 5 v2 #设置过期时间为5秒</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"><a href="#SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功" class="headerlink" title="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"></a>SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1 #以为k1是存在的，所以返回0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx k3 v3 #以为k3是不存在的，所以返回1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1      #此处可以发现k1依然为旧值</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<p>综合上篇总结，基本上就是Redis中能处理String字符串的所有方法了，有90%的程序员只会set，get，会用了这些，你就是那10%；</p>
+]]></content>
+      <categories>
+        <category>redis</category>
+      </categories>
+      <tags>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>String字符串类型详解（上）</title>
     <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
     <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><h5 id="String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"><a href="#String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。" class="headerlink" title="String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"></a><u>String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。</u></h5><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><h5 id="Set和Get：写值和取值"><a href="#Set和Get：写值和取值" class="headerlink" title="Set和Get：写值和取值"></a>Set和Get：写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\language_env\redis&gt;redis-cli.exe</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
@@ -24,21 +39,6 @@
 
 
 
-]]></content>
-      <categories>
-        <category>redis</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>String字符串类型详解（下）</title>
-    <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</url>
-    <content><![CDATA[<h4 id="隐藏技巧"><a href="#隐藏技巧" class="headerlink" title="隐藏技巧"></a>隐藏技巧</h4><h5 id="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"><a href="#SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；" class="headerlink" title="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"></a>SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1,hello</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; setrange k1 2 ww</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange k1 2 7</span><br><span class="line">&quot;wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="SETEX：设置过期时间"><a href="#SETEX：设置过期时间" class="headerlink" title="SETEX：设置过期时间"></a>SETEX：设置过期时间</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setex k2 5 v2 #设置过期时间为5秒</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"><a href="#SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功" class="headerlink" title="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"></a>SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1 #以为k1是存在的，所以返回0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx k3 v3 #以为k3是不存在的，所以返回1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1      #此处可以发现k1依然为旧值</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<p>综合上篇总结，基本上就是Redis中能处理String字符串的所有方法了，有90%的程序员只会set，get，会用了这些，你就是那10%；</p>
 ]]></content>
       <categories>
         <category>redis</category>
@@ -74,6 +74,69 @@
 <p>此时访问<a href="http://test.com/api%E4%BE%BF%E4%BC%9A%E8%AF%B7%E6%B1%82%E5%88%B0">http://test.com/api便会请求到</a><u><em>后端访问目录</em></u>，</p>
 <p>访问<a href="http://test.com便会请求到/">http://test.com便会请求到</a><u><em>前端访问目录</em></u></p>
 <p>此配置方案也可用于解决前后端分离引起的跨域问题</p>
+]]></content>
+      <categories>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>nginx负载均衡</title>
+    <url>/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
+    <content><![CDATA[<h4 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h4><p>随着社会的快速发展，人们对性能的要求越来越苛刻，一些大型网站用一台服务器根本就无法应对庞大的用户群，服务器压力越来越大，我们可能首先会将数据库，静态文件分离出去。但是随着发展，单独业务API的请求的压力也会变得很大，这时候我们可能需要做负载均衡将一台服务器面临的压力分散到多台服务器上。</p>
+<p>负载均衡就是把原来一台服务器要干的事情通过反向代理，变成多台服务器一起干。</p>
+<h4 id="nginx负载均衡配置"><a href="#nginx负载均衡配置" class="headerlink" title="nginx负载均衡配置"></a>nginx负载均衡配置</h4><p>nginx的负载均衡主要是对proxy_pass和upstream的配置,简单配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http &#123;    </span><br><span class="line">	#upstream主要配置需要用到的服务器及负载均衡策略</span><br><span class="line">	#upstream_name为自己定义的策略名</span><br><span class="line">    upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;     </span><br><span class="line">    server &#123;       </span><br><span class="line">    listen       8080;       </span><br><span class="line">    server_name  localhost;  </span><br><span class="line">    location &#x2F; &#123;           </span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;upstream_name;#使用负载均衡策略，注意策略名不要写错 </span><br><span class="line">        proxy_set_header Host $host;      </span><br><span class="line">        proxy_set_header X-Real-IP $remote_addr;  </span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;   </span><br><span class="line">    &#125;  </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="nginx负载均衡策略"><a href="#nginx负载均衡策略" class="headerlink" title="nginx负载均衡策略"></a>nginx负载均衡策略</h4><p>负载均衡策略有5种：轮询（默认）、权重、ip_hash、least_conn、fair</p>
+<h5 id="轮询（默认）"><a href="#轮询（默认）" class="headerlink" title="轮询（默认）"></a>轮询（默认）</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125; </span><br></pre></td></tr></table></figure>
+<p>最基本的配置方法，upstream的默认策略，它会根据请求时间来轮流分配请求到不同的服务器，基本参数如下：</p>
+<p><img src="/images/image-20210113160530587.png" alt="image-20210113160530587"></p>
+<p>注意：在轮询中，如果服务器down掉了，会自动剔除该服务器，此策略适合服务器配置相当，无状态且短平快的服务使用</p>
+<h5 id="权重"><a href="#权重" class="headerlink" title="权重"></a>权重</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p> 增加了参数weight，值与请求数量成正比，比如此时发来了3个请求，8001接收1个，8002接收2个，以此循环</p>
+<h5 id="ip-hash"><a href="#ip-hash" class="headerlink" title="ip_hash"></a>ip_hash</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;       </span><br><span class="line">		ip_hash;</span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。</p>
+<p>注意：适合有状态（比如session）的服务使用</p>
+<h5 id="least-conn"><a href="#least-conn" class="headerlink" title="least_conn"></a>least_conn</h5><p>选取一个连接数与权重weight比值最小的一个处理下一次请求。当然，已达到最大连接数的server照例不在选择的范围。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		least_conn;    </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">        server 192.168.0.28:8003 weight&#x3D;4;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>比如上一次请求了8002，此时8001连接数为80，8003连接数为150，计算结果80/2=40，150/4=37.5，37.5&lt;40,故下次请求选择8003</p>
+<h5 id="fair"><a href="#fair" class="headerlink" title="fair"></a>fair</h5><p>fair根据服务器的响应时间来分发下次请求</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		fair;    </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">        server 192.168.0.28:8003;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>nginx反向代理session失效问题解决</title>
+    <url>/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <content><![CDATA[<h3 id="问题场景"><a href="#问题场景" class="headerlink" title="问题场景"></a>问题场景</h3><p>最近遇到一个做单点登录的需求，我准备简单做，也就是账号之间的互绑，比如A网站的账号关联上B网站的账号，登录了A网站之后再去B网站可以免登录，我是用nginx反向代理来解决的。</p>
+<p>刚开始我是这么配置的：</p>
+<p> <code>location /aLogin &#123;</code>             </p>
+<p>​    <code>proxy_pass   http://a.com/aLogin;</code></p>
+<p><code>&#125;</code></p>
+<p>通过浏览器访问<a href="http://a.com/aLogin%E6%97%B6%EF%BC%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84cookie%E5%86%85%E6%9C%89jsessionid%E3%80%82%E5%86%8D%E6%AC%A1%E8%AE%BF%E9%97%AE%E6%97%B6%EF%BC%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%9A%E5%8F%91%E9%80%81%E5%BD%93%E5%89%8D%E7%9A%84cookie%E3%80%82">http://a.com/aLogin时，浏览器的cookie内有jsessionid。再次访问时，浏览器会发送当前的cookie。</a></p>
+<p> <code>location /bLogin &#123;</code>             </p>
+<p>​    <code>proxy_pass   http://b.com/bLogin;</code></p>
+<p><code>&#125;</code></p>
+<h5 id="此时我们先回顾一下session的创建过程："><a href="#此时我们先回顾一下session的创建过程：" class="headerlink" title="此时我们先回顾一下session的创建过程："></a>此时我们先回顾一下session的创建过程：</h5><p>1、当浏览器第一次打开页面时，服务端会为这次会话创建一个session，并将session id通过response的header传递给浏览器，header一般为 Set-Cookie: JSESSIONID=xxxxx; Path=xxxx<br>2、浏览器接收到响应后，如果header Set-Cookie 中path的值与浏览器地址路径匹配，则将该header值存于浏览器的Cookie中<br>3、浏览器在下次请求服务器时，将Cookie中的JSESSIONID值通过request的header上报给服务端，header一般为 Cookie: JSESSIONID=xxxx;<br>4、服务端可通过该JSESSIONID来定位到对应的session</p>
+<p>浏览器访问 <a href="http://a.com/aLogin">http://a.com/aLogin</a> 时，服务端返回的 <code>Set-Cookie</code> 的 Path 值为 /aLogin （因为中间有反向代理，服务端并不知道代理前的路径是啥，是按最终请求服务端的路径设置）</p>
+<p>因为浏览器访问地址的路径 <code>/bLogin 与 </code>Set-Cookie<code>的 Path</code>/aLogin  不匹配，所以浏览器并不会将其值存入Cookie中。</p>
+<p>因此在下次请求服务器时，浏览器无法设置request Cookie header的 JSESSIONID 值，服务器无法定位到对应的session，因此会将其当做第一次请求，创建一个新的session，如此反复，因此就算你登录认证通过了，但服务器返回的登录凭证（JSESSIONID）浏览器不会保存，并在下次请求时携带，导致服务器认为你是一个新的请求，当然就会又跳到登录页面了。</p>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>nginx有一个命令 proxy_cookie_path（参考： proxy_cookie_path）可将服务器返回的 Set-Cookie 中的path进行修改，格式为 proxy_cookie_path 原路径 目标路径，我们在配置中添加 proxy_cookie_path 如下。</p>
+<ol>
+<li><pre><code class="nginx"> location /bLogin/ &#123;
+     proxy_pass  http://b.com/bLogin/;*
+     proxy_cookie_path  /aLogin /bLogin;//注意此处的对应路径顺序
+ &#125;</code></pre>
+</li>
+</ol>
+<p>重启nginx，结束。</p>
 ]]></content>
       <categories>
         <category>Nginx</category>
@@ -120,66 +183,22 @@
       </tags>
   </entry>
   <entry>
-    <title>nginx反向代理session失效问题解决</title>
-    <url>/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
-    <content><![CDATA[<h3 id="问题场景"><a href="#问题场景" class="headerlink" title="问题场景"></a>问题场景</h3><p>最近遇到一个做单点登录的需求，我准备简单做，也就是账号之间的互绑，比如A网站的账号关联上B网站的账号，登录了A网站之后再去B网站可以免登录，我是用nginx反向代理来解决的。</p>
-<p>刚开始我是这么配置的：</p>
-<p> <code>location /aLogin &#123;</code>             </p>
-<p>​    <code>proxy_pass   http://a.com/aLogin;</code></p>
-<p><code>&#125;</code></p>
-<p>通过浏览器访问<a href="http://a.com/aLogin%E6%97%B6%EF%BC%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84cookie%E5%86%85%E6%9C%89jsessionid%E3%80%82%E5%86%8D%E6%AC%A1%E8%AE%BF%E9%97%AE%E6%97%B6%EF%BC%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%9A%E5%8F%91%E9%80%81%E5%BD%93%E5%89%8D%E7%9A%84cookie%E3%80%82">http://a.com/aLogin时，浏览器的cookie内有jsessionid。再次访问时，浏览器会发送当前的cookie。</a></p>
-<p> <code>location /bLogin &#123;</code>             </p>
-<p>​    <code>proxy_pass   http://b.com/bLogin;</code></p>
-<p><code>&#125;</code></p>
-<h5 id="此时我们先回顾一下session的创建过程："><a href="#此时我们先回顾一下session的创建过程：" class="headerlink" title="此时我们先回顾一下session的创建过程："></a>此时我们先回顾一下session的创建过程：</h5><p>1、当浏览器第一次打开页面时，服务端会为这次会话创建一个session，并将session id通过response的header传递给浏览器，header一般为 Set-Cookie: JSESSIONID=xxxxx; Path=xxxx<br>2、浏览器接收到响应后，如果header Set-Cookie 中path的值与浏览器地址路径匹配，则将该header值存于浏览器的Cookie中<br>3、浏览器在下次请求服务器时，将Cookie中的JSESSIONID值通过request的header上报给服务端，header一般为 Cookie: JSESSIONID=xxxx;<br>4、服务端可通过该JSESSIONID来定位到对应的session</p>
-<p>浏览器访问 <a href="http://a.com/aLogin">http://a.com/aLogin</a> 时，服务端返回的 <code>Set-Cookie</code> 的 Path 值为 /aLogin （因为中间有反向代理，服务端并不知道代理前的路径是啥，是按最终请求服务端的路径设置）</p>
-<p>因为浏览器访问地址的路径 <code>/bLogin 与 </code>Set-Cookie<code>的 Path</code>/aLogin  不匹配，所以浏览器并不会将其值存入Cookie中。</p>
-<p>因此在下次请求服务器时，浏览器无法设置request Cookie header的 JSESSIONID 值，服务器无法定位到对应的session，因此会将其当做第一次请求，创建一个新的session，如此反复，因此就算你登录认证通过了，但服务器返回的登录凭证（JSESSIONID）浏览器不会保存，并在下次请求时携带，导致服务器认为你是一个新的请求，当然就会又跳到登录页面了。</p>
-<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>nginx有一个命令 proxy_cookie_path（参考： proxy_cookie_path）可将服务器返回的 Set-Cookie 中的path进行修改，格式为 proxy_cookie_path 原路径 目标路径，我们在配置中添加 proxy_cookie_path 如下。</p>
-<ol>
-<li><pre><code class="nginx"> location /bLogin/ &#123;
-     proxy_pass  http://b.com/bLogin/;*
-     proxy_cookie_path  /aLogin /bLogin;//注意此处的对应路径顺序
- &#125;</code></pre>
-</li>
-</ol>
-<p>重启nginx，结束。</p>
+    <title>rand()查询效率问题解决</title>
+    <url>/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
+<p>这是最基本的rand（）用法。</p>
+<h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
+<p>select * from card order by rand() limit 1;</p>
+<p>这条语句竟然用了23秒多（我的机子性能还算可以的了），这实在令人崩溃。后来去看了mysql官方手册，里边意思是在order by 从句中使用rand（）时，会导致数据列被多此扫描，所以效率会极低。</p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>后来在某社区发现了一个有趣的写法，先查出来表中最大的id，再查出来表中最小的id，然后两个id加起来，再用rand（）函数乘以加以来的结果，用floor函数向下取整，取出id大于这个这个整数的数据，用时0.002秒，跟之前那种写法简直是天壤之别。</p>
+<p>SELECT * FROM <code>card</code><br>WHERE card_id &gt;= (SELECT FLOOR( RAND() *((SELECT MAX(card_id) FROM <code>card</code>)-(SELECT MIN(card_id) FROM <code>card</code>)) + (SELECT MIN(card_id) FROM <code>card</code>)))  ORDER BY card_id DESC;</p>
+<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
 ]]></content>
       <categories>
-        <category>Nginx</category>
+        <category>mysql</category>
       </categories>
       <tags>
-        <tag>Nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>nginx负载均衡</title>
-    <url>/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
-    <content><![CDATA[<h4 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h4><p>随着社会的快速发展，人们对性能的要求越来越苛刻，一些大型网站用一台服务器根本就无法应对庞大的用户群，服务器压力越来越大，我们可能首先会将数据库，静态文件分离出去。但是随着发展，单独业务API的请求的压力也会变得很大，这时候我们可能需要做负载均衡将一台服务器面临的压力分散到多台服务器上。</p>
-<p>负载均衡就是把原来一台服务器要干的事情通过反向代理，变成多台服务器一起干。</p>
-<h4 id="nginx负载均衡配置"><a href="#nginx负载均衡配置" class="headerlink" title="nginx负载均衡配置"></a>nginx负载均衡配置</h4><p>nginx的负载均衡主要是对proxy_pass和upstream的配置,简单配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http &#123;    </span><br><span class="line">	#upstream主要配置需要用到的服务器及负载均衡策略</span><br><span class="line">	#upstream_name为自己定义的策略名</span><br><span class="line">    upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;     </span><br><span class="line">    server &#123;       </span><br><span class="line">    listen       8080;       </span><br><span class="line">    server_name  localhost;  </span><br><span class="line">    location &#x2F; &#123;           </span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;upstream_name;#使用负载均衡策略，注意策略名不要写错 </span><br><span class="line">        proxy_set_header Host $host;      </span><br><span class="line">        proxy_set_header X-Real-IP $remote_addr;  </span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;   </span><br><span class="line">    &#125;  </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="nginx负载均衡策略"><a href="#nginx负载均衡策略" class="headerlink" title="nginx负载均衡策略"></a>nginx负载均衡策略</h4><p>负载均衡策略有5种：轮询（默认）、权重、ip_hash、least_conn、fair</p>
-<h5 id="轮询（默认）"><a href="#轮询（默认）" class="headerlink" title="轮询（默认）"></a>轮询（默认）</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125; </span><br></pre></td></tr></table></figure>
-<p>最基本的配置方法，upstream的默认策略，它会根据请求时间来轮流分配请求到不同的服务器，基本参数如下：</p>
-<p><img src="/images/image-20210113160530587.png" alt="image-20210113160530587"></p>
-<p>注意：在轮询中，如果服务器down掉了，会自动剔除该服务器，此策略适合服务器配置相当，无状态且短平快的服务使用</p>
-<h5 id="权重"><a href="#权重" class="headerlink" title="权重"></a>权重</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;        </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p> 增加了参数weight，值与请求数量成正比，比如此时发来了3个请求，8001接收1个，8002接收2个，以此循环</p>
-<h5 id="ip-hash"><a href="#ip-hash" class="headerlink" title="ip_hash"></a>ip_hash</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;       </span><br><span class="line">		ip_hash;</span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。</p>
-<p>注意：适合有状态（比如session）的服务使用</p>
-<h5 id="least-conn"><a href="#least-conn" class="headerlink" title="least_conn"></a>least_conn</h5><p>选取一个连接数与权重weight比值最小的一个处理下一次请求。当然，已达到最大连接数的server照例不在选择的范围。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		least_conn;    </span><br><span class="line">        server 192.168.0.28:8001 weight&#x3D;1;        </span><br><span class="line">        server 192.168.0.28:8002 weight&#x3D;2;   </span><br><span class="line">        server 192.168.0.28:8003 weight&#x3D;4;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>比如上一次请求了8002，此时8001连接数为80，8003连接数为150，计算结果80/2=40，150/4=37.5，37.5&lt;40,故下次请求选择8003</p>
-<h5 id="fair"><a href="#fair" class="headerlink" title="fair"></a>fair</h5><p>fair根据服务器的响应时间来分发下次请求</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">upstream upstream_name&#123;    </span><br><span class="line">		fair;    </span><br><span class="line">        server 192.168.0.28:8001;        </span><br><span class="line">        server 192.168.0.28:8002;   </span><br><span class="line">        server 192.168.0.28:8003;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Nginx</category>
-      </categories>
-      <tags>
-        <tag>Nginx</tag>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -208,42 +227,6 @@
       </categories>
       <tags>
         <tag>微信小程序</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>设计模式之单例模式</title>
-    <url>/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
-<p>2.可以提升系统的性能</p>
-<p>3.提供了唯一实例的受控访问，方便后期维护</p>
-<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>rand()查询效率问题解决</title>
-    <url>/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
-    <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
-<p>这是最基本的rand（）用法。</p>
-<h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
-<p>select * from card order by rand() limit 1;</p>
-<p>这条语句竟然用了23秒多（我的机子性能还算可以的了），这实在令人崩溃。后来去看了mysql官方手册，里边意思是在order by 从句中使用rand（）时，会导致数据列被多此扫描，所以效率会极低。</p>
-<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>后来在某社区发现了一个有趣的写法，先查出来表中最大的id，再查出来表中最小的id，然后两个id加起来，再用rand（）函数乘以加以来的结果，用floor函数向下取整，取出id大于这个这个整数的数据，用时0.002秒，跟之前那种写法简直是天壤之别。</p>
-<p>SELECT * FROM <code>card</code><br>WHERE card_id &gt;= (SELECT FLOOR( RAND() *((SELECT MAX(card_id) FROM <code>card</code>)-(SELECT MIN(card_id) FROM <code>card</code>)) + (SELECT MIN(card_id) FROM <code>card</code>)))  ORDER BY card_id DESC;</p>
-<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
-]]></content>
-      <categories>
-        <category>mysql</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -285,6 +268,23 @@
       </categories>
       <tags>
         <tag>其它</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>设计模式之单例模式</title>
+    <url>/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
+<p>2.可以提升系统的性能</p>
+<p>3.提供了唯一实例的受控访问，方便后期维护</p>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
       </tags>
   </entry>
   <entry>
