@@ -84,7 +84,7 @@
 
 
 
-  <link rel="alternate" href="/atom.xml" title="可能是个疯子" type="application/atom+xml" />
+  <link rel="alternate" href="/atom.xml" title="All Is Will" type="application/atom+xml" />
 
 
 
@@ -97,11 +97,11 @@
 
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="可能是个疯子">
+<meta property="og:title" content="All Is Will">
 <meta property="og:url" content="https://hxs9712.github.io/index.html">
-<meta property="og:site_name" content="可能是个疯子">
+<meta property="og:site_name" content="All Is Will">
 <meta property="og:locale">
-<meta property="article:author" content="IT疯子">
+<meta property="article:author" content="破茧化蝶">
 <meta name="twitter:card" content="summary">
 
 
@@ -137,7 +137,7 @@
 
 
 
-  <title>可能是个疯子</title>
+  <title>All Is Will</title>
   
 
 
@@ -175,12 +175,12 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">可能是个疯子</span>
+        <span class="site-title">All Is Will</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
       
-        <p class="site-subtitle">疯子</p>
+        <p class="site-subtitle">一切都是最好的安排</p>
       
   </div>
 
@@ -326,6 +326,161 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="All Is Will">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" itemprop="url">Redis持久化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-08-06T12:06:58+08:00">
+                2021-08-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="Redis持久化"><a href="#Redis持久化" class="headerlink" title="Redis持久化"></a>Redis持久化</h4><p>redis为了防止宕机、停电等意外情况导致的数据丢失，便有了持久化的解决方案，具体有两种方式，RDB持久化和AOF持久化。</p>
+<h4 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h4><p>RDB，全称Redis database，也就是redis数据库，顾名思义，这种持久化方式主要是以存储数据为主。简单来说，就是在一定时间内，进行了多少次操作，比如在15分钟内，进行了1000次操作，便将数据生成快照并存储到磁盘上，文件名默认为dump.rdb，恢复数据的时候就从磁盘上读出来。</p>
+<h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><p>AOF，全称Append Only File，只能追加并且不可以改写的文件，只因为这个文件里存储的都是命令。简单来说，AOF就是每隔一定时间把命令存储到文件里，文件名默认为appendonly.aof，等到需要恢复数据的时候就重新执行一遍文件中的所有命令。</p>
+<h4 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h4><h5 id="RDB持久化方式分析"><a href="#RDB持久化方式分析" class="headerlink" title="RDB持久化方式分析"></a>RDB持久化方式分析</h5><p>1、RDB方式是将一段时间段内的数据快照持久化到磁盘中</p>
+<p>2、RDB持久化过程中会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p>
+<p>3、RDB持久化时，Redis会单独fork一个子进程来处理，而主进程不需要进行任何IO操作，从而保证了Redis的高性能</p>
+<p>4、RDB是每隔一段时间执行一次，这样的话就可能会造成数据丢失，比如每隔五分钟持久化一次，那就有可能丢失五分钟的数据，如果对数据的完整性不太重视，则适合用RDB这种持久化方式，因为它比AOF要高效</p>
+<h5 id="AOF持久化方式分析"><a href="#AOF持久化方式分析" class="headerlink" title="AOF持久化方式分析"></a>AOF持久化方式分析</h5><p>1、AOF持久化策略是每秒钟执行一次，把指令记录到磁盘中，即使发生了宕机、停电等意外情况，也只会丢失1秒（官方说1秒，其实是要比1秒多的，）的数据，并且如果硬盘IO慢，会阻塞父进程</p>
+<p>2、如果追加日志时，磁盘满了，或者其它意外情况导致日志不完整，redis提供了看redis-check-aof工具、可以修复日志</p>
+<p>3、由于AOF文件只能追加、不能改写，文件便会随着时间的增长越来越大，因此，redis提供了AOF文件重写（rewrite）机制，当AOF文件大小超过配置的值时，redis便会压缩AOF文件，只保留可以恢复数据的指令。比如100个incr命令，合并成一条set指令，既能保证性能，也能压缩文件大小。<strong>如果你直接执行BGREWRITEAOF命令，那么redis会生成一个全新的AOF文件，其中便包括了可以恢复现有数据的最少的命令集。</strong></p>
+<p>4、AOF持久化过程中也会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p>
+<p>5、如果AOF文件出现了问题，redis并不会贸然加载这个有问题的AOF文件，而是报错退出。这时可以通过以下步骤来修复出错的文件：</p>
+<p>1.备份被写坏的AOF文件<br>2.运行redis-check-aof –fix进行修复<br>3.用diff -u来看下两个文件的差异，确认问题点<br>4.重启redis，加载修复后的AOF文件</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>到底是使用RDB还是AOF，Redis显然更高效，但是AOF显然可以更可靠的保证数据的完整性。至于选择RDB还是AOF，官方建议是两者同时用，这样可以最高能力保证数据的可靠性。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/06/07/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -335,7 +490,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -482,7 +637,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -627,7 +782,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -789,7 +944,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -935,7 +1090,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -1076,7 +1231,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -1223,7 +1378,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -1386,7 +1541,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -1529,7 +1684,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
+      <meta itemprop="name" content="All Is Will">
     </span>
 
     
@@ -1656,153 +1811,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="可能是个疯子">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" itemprop="url">设计模式之单例模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-26T12:01:25+08:00">
-                2021-01-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
-<p>2.可以提升系统的性能</p>
-<p>3.提供了唯一实例的受控访问，方便后期维护</p>
-<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1855,7 +1863,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1937,7 +1945,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">IT疯子</span>
+  <span class="author" itemprop="copyrightHolder">破茧化蝶</span>
 </div>
 
 

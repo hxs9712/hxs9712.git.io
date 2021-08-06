@@ -1,20 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>可能是个疯子</title>
+  <title>All Is Will</title>
   
-  <subtitle>疯子</subtitle>
+  <subtitle>一切都是最好的安排</subtitle>
   <link href="https://hxs9712.github.io/atom.xml" rel="self"/>
   
   <link href="https://hxs9712.github.io/"/>
-  <updated>2021-06-07T10:12:11.721Z</updated>
+  <updated>2021-08-06T04:10:45.018Z</updated>
   <id>https://hxs9712.github.io/</id>
   
   <author>
-    <name>IT疯子</name>
+    <name>破茧化蝶</name>
     
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis持久化</title>
+    <link href="https://hxs9712.github.io/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/"/>
+    <id>https://hxs9712.github.io/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</id>
+    <published>2021-08-06T04:06:58.195Z</published>
+    <updated>2021-08-06T04:10:45.018Z</updated>
+    
+    <content type="html"><![CDATA[<h4 id="Redis持久化"><a href="#Redis持久化" class="headerlink" title="Redis持久化"></a>Redis持久化</h4><p>redis为了防止宕机、停电等意外情况导致的数据丢失，便有了持久化的解决方案，具体有两种方式，RDB持久化和AOF持久化。</p><h4 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h4><p>RDB，全称Redis database，也就是redis数据库，顾名思义，这种持久化方式主要是以存储数据为主。简单来说，就是在一定时间内，进行了多少次操作，比如在15分钟内，进行了1000次操作，便将数据生成快照并存储到磁盘上，文件名默认为dump.rdb，恢复数据的时候就从磁盘上读出来。</p><h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><p>AOF，全称Append Only File，只能追加并且不可以改写的文件，只因为这个文件里存储的都是命令。简单来说，AOF就是每隔一定时间把命令存储到文件里，文件名默认为appendonly.aof，等到需要恢复数据的时候就重新执行一遍文件中的所有命令。</p><h4 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h4><h5 id="RDB持久化方式分析"><a href="#RDB持久化方式分析" class="headerlink" title="RDB持久化方式分析"></a>RDB持久化方式分析</h5><p>1、RDB方式是将一段时间段内的数据快照持久化到磁盘中</p><p>2、RDB持久化过程中会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p><p>3、RDB持久化时，Redis会单独fork一个子进程来处理，而主进程不需要进行任何IO操作，从而保证了Redis的高性能</p><p>4、RDB是每隔一段时间执行一次，这样的话就可能会造成数据丢失，比如每隔五分钟持久化一次，那就有可能丢失五分钟的数据，如果对数据的完整性不太重视，则适合用RDB这种持久化方式，因为它比AOF要高效</p><h5 id="AOF持久化方式分析"><a href="#AOF持久化方式分析" class="headerlink" title="AOF持久化方式分析"></a>AOF持久化方式分析</h5><p>1、AOF持久化策略是每秒钟执行一次，把指令记录到磁盘中，即使发生了宕机、停电等意外情况，也只会丢失1秒（官方说1秒，其实是要比1秒多的，）的数据，并且如果硬盘IO慢，会阻塞父进程</p><p>2、如果追加日志时，磁盘满了，或者其它意外情况导致日志不完整，redis提供了看redis-check-aof工具、可以修复日志</p><p>3、由于AOF文件只能追加、不能改写，文件便会随着时间的增长越来越大，因此，redis提供了AOF文件重写（rewrite）机制，当AOF文件大小超过配置的值时，redis便会压缩AOF文件，只保留可以恢复数据的指令。比如100个incr命令，合并成一条set指令，既能保证性能，也能压缩文件大小。<strong>如果你直接执行BGREWRITEAOF命令，那么redis会生成一个全新的AOF文件，其中便包括了可以恢复现有数据的最少的命令集。</strong></p><p>4、AOF持久化过程中也会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p><p>5、如果AOF文件出现了问题，redis并不会贸然加载这个有问题的AOF文件，而是报错退出。这时可以通过以下步骤来修复出错的文件：</p><p>1.备份被写坏的AOF文件<br>2.运行redis-check-aof –fix进行修复<br>3.用diff -u来看下两个文件的差异，确认问题点<br>4.重启redis，加载修复后的AOF文件</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>到底是使用RDB还是AOF，Redis显然更高效，但是AOF显然可以更可靠的保证数据的完整性。至于选择RDB还是AOF，官方建议是两者同时用，这样可以最高能力保证数据的可靠性。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h4 id=&quot;Redis持久化&quot;&gt;&lt;a href=&quot;#Redis持久化&quot; class=&quot;headerlink&quot; title=&quot;Redis持久化&quot;&gt;&lt;/a&gt;Redis持久化&lt;/h4&gt;&lt;p&gt;redis为了防止宕机、停电等意外情况导致的数据丢失，便有了持久化的解决方案，具体有两种方式</summary>
+      
+    
+    
+    
+    <category term="redis" scheme="https://hxs9712.github.io/categories/redis/"/>
+    
+    
+    <category term="redis" scheme="https://hxs9712.github.io/tags/redis/"/>
+    
+  </entry>
   
   <entry>
     <title>谷歌跨域设置</title>
