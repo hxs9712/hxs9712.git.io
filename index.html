@@ -326,6 +326,158 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/08/06/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="All Is Well">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/08/06/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/" itemprop="url">composer内存溢出问题解决</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-08-06T16:35:07+08:00">
+                2021-08-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Composer/" itemprop="url" rel="index">
+                    <span itemprop="name">Composer</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>第一步，创建git仓库，把仓库clone到本地</p>
+<p>第二步，进入本地仓库文件夹，执行composer init</p>
+<p>第三步，根据命令行提示，填写基本信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">#填写作者信息</span><br><span class="line">Author [zousi &lt;3056953305@qq.com&gt;, n to skip]: zousi &lt;3056953305@qq.com&gt;</span><br><span class="line">#定义包的稳定性，可用的稳定性标识（按字母排序）：dev、alpha、beta、RC、stable</span><br><span class="line">Minimum Stability []: dev</span><br><span class="line">#选择包类型</span><br><span class="line">Package Type (e.g. library, project, metapackage, composer-plugin) []: library</span><br><span class="line">#自定义许可证</span><br><span class="line">License []:</span><br><span class="line">#定义包需要的依赖</span><br><span class="line">Define your dependencies.</span><br><span class="line"></span><br><span class="line">Would you like to define your dependencies (require) interactively [yes]?</span><br><span class="line">#搜索需要的包</span><br><span class="line">Search for a package:</span><br><span class="line">#第二次确认</span><br><span class="line">Would you like to define your dev dependencies (require-dev) interactively [yes]?</span><br><span class="line">Search for a package:</span><br><span class="line">#确认json文件的基本信息</span><br><span class="line">&#123;</span><br><span class="line">    &quot;name&quot;: &quot;hsx9712&#x2F;composer_init&quot;,</span><br><span class="line">    &quot;description&quot;: &quot;composer_init&quot;,</span><br><span class="line">    &quot;type&quot;: &quot;library&quot;,</span><br><span class="line">    &quot;authors&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;zousi&quot;,</span><br><span class="line">            &quot;email&quot;: &quot;3056953305@qq.com&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;minimum-stability&quot;: &quot;dev&quot;,</span><br><span class="line">    &quot;require&quot;: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">#是否确认生成</span><br><span class="line">Do you confirm generation [yes]? yes</span><br><span class="line">#是否把vendor文件夹放到.gitignore文件中</span><br><span class="line">Would you like the vendor directory added to your .gitignore [yes]? yes</span><br></pre></td></tr></table></figure>
+<p>创建完成。</p>
+<p>第四步、提交到git远程仓库</p>
+<p>第五步，复制git地址</p>
+<p>第六步、打开<a target="_blank" rel="noopener" href="https://packagist.org/%EF%BC%8C%E5%A6%82%E6%9E%9C%E6%B2%A1%E6%9C%89%E8%B4%A6%E5%8F%B7%EF%BC%8C%E5%85%88%E5%88%9B%E5%BB%BA%E8%B4%A6%E5%8F%B7">https://packagist.org/，如果没有账号，先创建账号</a></p>
+<p>第七步、登录后点右上方的Submit按钮</p>
+<p>第八步、在输入框粘贴git地址，并提交</p>
+<p>完成</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1662,155 +1814,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="All Is Well">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" itemprop="url">rand()查询效率问题解决</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-12T10:15:33+08:00">
-                2021-03-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index">
-                    <span itemprop="name">mysql</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
-<p>这是最基本的rand（）用法。</p>
-<h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
-<p>select * from card order by rand() limit 1;</p>
-<p>这条语句竟然用了23秒多（我的机子性能还算可以的了），这实在令人崩溃。后来去看了mysql官方手册，里边意思是在order by 从句中使用rand（）时，会导致数据列被多此扫描，所以效率会极低。</p>
-<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>后来在某社区发现了一个有趣的写法，先查出来表中最大的id，再查出来表中最小的id，然后两个id加起来，再用rand（）函数乘以加以来的结果，用floor函数向下取整，取出id大于这个这个整数的数据，用时0.002秒，跟之前那种写法简直是天壤之别。</p>
-<p>SELECT * FROM <code>card</code><br>WHERE card_id &gt;= (SELECT FLOOR( RAND() *((SELECT MAX(card_id) FROM <code>card</code>)-(SELECT MIN(card_id) FROM <code>card</code>)) + (SELECT MIN(card_id) FROM <code>card</code>)))  ORDER BY card_id DESC;</p>
-<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1863,7 +1866,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
