@@ -329,7 +329,7 @@
       </tags>
   </entry>
   <entry>
-    <title>composer内存溢出问题解决</title>
+    <title>自定义composer包步骤</title>
     <url>/2021/08/06/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/</url>
     <content><![CDATA[<p>第一步，创建git仓库，把仓库clone到本地</p>
 <p>第二步，进入本地仓库文件夹，执行composer init</p>
