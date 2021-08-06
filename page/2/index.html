@@ -326,7 +326,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/03/20/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -345,7 +345,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/03/20/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" itemprop="url">composer内存溢出问题解决</a></h1>
+                <a class="post-title-link" href="/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/" itemprop="url">nginx反向代理--实际应用场景之动静分离（解决跨域问题）</a></h1>
         
 
         <div class="post-meta">
@@ -357,8 +357,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-20T12:24:44+08:00">
-                2021-03-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-13T18:05:26+08:00">
+                2021-01-13
               </time>
             
 
@@ -380,8 +380,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Composer/" itemprop="url" rel="index">
-                    <span itemprop="name">Composer</span>
+                  <a href="/categories/Nginx/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx</span>
                   </a>
                 </span>
 
@@ -419,8 +419,17 @@
       
         
           
-            <p>php -d memory_limit=-1 /usr/bin/composer update</p>
-<p>此处的composer需要用全路径</p>
+            <h3 id="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"><a href="#nginx反向代理–实际应用场景之动静分离（解决跨域问题）" class="headerlink" title="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"></a>nginx反向代理–实际应用场景之动静分离（解决跨域问题）</h3><p>上一节我们熟悉了nginx反向代理的原理和基本配置，这节我们来进阶学习下nginx反向代理的应用场景。</p>
+<h4 id="什么是动静分离（即前后端分离）"><a href="#什么是动静分离（即前后端分离）" class="headerlink" title="什么是动静分离（即前后端分离）"></a>什么是动静分离（即前后端分离）</h4><p>动静分离是将网站静态资源与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问。</p>
+<p>动静分离的一种做法是将静态资源部署在nginx上，后台项目部署到应用服务器上，根据一定规则静态资源的请求全部请求nginx服务器，达到动静分离的目标。</p>
+<h4 id="动静分离的好处"><a href="#动静分离的好处" class="headerlink" title="动静分离的好处"></a>动静分离的好处</h4><p>api接口服务化：动静分离之后，后端应用更为服务化，只需要通过提供api接口即可，可以为多个功能模块甚至是多个平台的功能使用，可以有效的节省后端人力，更便于功能维护。</p>
+<p>前后端开发并行：前后端只需要关心接口协议即可，各自的开发相互不干扰，并行开发，并行自测，可以有效的提高开发时间，也可以有些的减少联调时间</p>
+<p>减轻后端服务器压力，提高静态资源访问速度：后端不用再将模板渲染为html返回给用户端，且静态服务器可以采用更为专业的技术提高静态资源的访问速度。</p>
+<h4 id="动静分离的简单实现"><a href="#动静分离的简单实现" class="headerlink" title="动静分离的简单实现"></a>动静分离的简单实现</h4><p>动静分离的实现实际上基于反向代理，主要配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">		#后端api</span><br><span class="line">		location ^~ &#x2F;api &#123;</span><br><span class="line">        	root 后端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">        #前端</span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">        	root 前端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+<p>此时访问<a target="_blank" rel="noopener" href="http://test.com/api%E4%BE%BF%E4%BC%9A%E8%AF%B7%E6%B1%82%E5%88%B0">http://test.com/api便会请求到</a><u><em>后端访问目录</em></u>，</p>
+<p>访问<a target="_blank" rel="noopener" href="http://test.com便会请求到/">http://test.com便会请求到</a><u><em>前端访问目录</em></u></p>
+<p>此配置方案也可用于解决前后端分离引起的跨域问题</p>
 
           
         
@@ -469,7 +478,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2020/07/17/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -488,7 +497,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" itemprop="url">rand()查询效率问题解决</a></h1>
+                <a class="post-title-link" href="/2020/07/17/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" itemprop="url">rand()查询效率问题解决</a></h1>
         
 
         <div class="post-meta">
@@ -500,8 +509,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-12T10:15:33+08:00">
-                2021-03-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-17T16:10:17+08:00">
+                2020-07-17
               </time>
             
 
@@ -618,7 +627,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2020/04/19/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -637,7 +646,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" itemprop="url">设计模式之单例模式</a></h1>
+                <a class="post-title-link" href="/2020/04/19/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" itemprop="url">composer内存溢出问题解决</a></h1>
         
 
         <div class="post-meta">
@@ -649,8 +658,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-26T12:01:25+08:00">
-                2021-01-26
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-19T15:57:06+08:00">
+                2020-04-19
               </time>
             
 
@@ -672,8 +681,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
+                  <a href="/categories/Composer/" itemprop="url" rel="index">
+                    <span itemprop="name">Composer</span>
                   </a>
                 </span>
 
@@ -711,12 +720,8 @@
       
         
           
-            <h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
-<p>2.可以提升系统的性能</p>
-<p>3.提供了唯一实例的受控访问，方便后期维护</p>
-<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
-
+            <p>php -d memory_limit=-1 /usr/bin/composer update</p>
+<p>此处的composer需要用全路径</p>
 
           
         
@@ -765,7 +770,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2020/04/19/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -784,7 +789,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" itemprop="url">nginx反向代理</a></h1>
+                <a class="post-title-link" href="/2020/04/19/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" itemprop="url">nginx负载均衡</a></h1>
         
 
         <div class="post-meta">
@@ -796,175 +801,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-22T18:34:06+08:00">
-                2021-01-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Nginx/" itemprop="url" rel="index">
-                    <span itemprop="name">Nginx</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="nginx反向代理"><a href="#nginx反向代理" class="headerlink" title="nginx反向代理"></a>nginx反向代理</h3><h4 id="什么叫反向代理？"><a href="#什么叫反向代理？" class="headerlink" title="什么叫反向代理？"></a>什么叫反向代理？</h4><p>反向代理就是用一个代理服务器代替用户转发请求到真实服务器，从而达到隐藏目标服务器的需求。</p>
-<h4 id="反向代理的用途"><a href="#反向代理的用途" class="headerlink" title="反向代理的用途"></a>反向代理的用途</h4><p>动静分离，负载均衡都是基于反向代理来实现的。</p>
-<p>示意图：</p>
-<p><img src="/images/image-20210111190904926.png" alt="image-20210111190904926"></p>
-<p>客户发送请求到代理服务器，服务器根据一定的标识符分发到目标服务器。</p>
-<h3 id="反向代理实例"><a href="#反向代理实例" class="headerlink" title="反向代理实例"></a>反向代理实例</h3><p>下面是一个最基础的反向代理的配置，修改nginx.conf文件，增加一个server模块，主要配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">                 location &#x2F; &#123;</span><br><span class="line">                            proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;#目标服务器地址</span><br><span class="line">                 &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>浏览器访问：<a target="_blank" rel="noopener" href="http://test.com,就可以得到http//127.0.0.1:3000%E7%9A%84%E5%86%85%E5%AE%B9%E4%BA%86%EF%BC%9B">http://test.com，就可以得到http://127.0.0.1:3000的内容了；</a></p>
-<h4 id="怎么用一个服务器代理多台服务器"><a href="#怎么用一个服务器代理多台服务器" class="headerlink" title="怎么用一个服务器代理多台服务器"></a>怎么用一个服务器代理多台服务器</h4><p>上面我们学习的一个服务器只能代理一台服务器，那怎么才能代理多台服务器呢？下面是示意图：</p>
-<p><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=924703378,2436109990&fm=26&gp=0.jpg" alt="img"></p>
-<p>客户访问代理服务器，代理服务器根据不同的标识（规则）把请求分发到目标服务器，那这是怎么做到的呢？其实很简单，只需要用location去匹配相应的规则，便能达到分发请求的目的。</p>
-<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">        location &#x2F;first &#123;</span><br><span class="line">       		 proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;</span><br><span class="line">        &#125;</span><br><span class="line">        location &#x2F;second &#123;</span><br><span class="line">       		 proxy_pass http:&#x2F;&#x2F;127.0.0.1:3001;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，相较于上面的单台代理的配置文件，location部分发生了变化，这个变化也就是location用来匹配url的规则，此时，nginx会根据访问路径来分发请求给目标服务器；</p>
-<p><a target="_blank" rel="noopener" href="http://test.com/first">http://test.com/first</a> 会请求 <a target="_blank" rel="noopener" href="http://127.0.0.1:3000/">http://127.0.0.1:3000</a></p>
-<p><a target="_blank" rel="noopener" href="http://test.com/second">http://test.com/second</a> 会请求 <a target="_blank" rel="noopener" href="http://127.0.0.1:3001/">http://127.0.0.1:3001</a></p>
-<p>location会根据域名后的字符来匹配相应的代理服务器</p>
-<h4 id="location匹配规则（重点）"><a href="#location匹配规则（重点）" class="headerlink" title="location匹配规则（重点）"></a>location匹配规则（重点）</h4><p>语法规则：</p>
-<p><img src="/images/image-20210113150828680.png" alt="image-20210113150828680"></p>
-<p>location匹配规则主要有三种，并且它们的优先级如下：</p>
-<p>1、精确匹配</p>
-<p>2、正则匹配</p>
-<p>3、通用匹配</p>
-<p>注意：<em>location匹配规则与编写顺序无关</em></p>
-<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">   #规则A</span><br><span class="line">&#125;</span><br><span class="line">location &#x3D; &#x2F;login &#123;</span><br><span class="line">   #规则B</span><br><span class="line">&#125;</span><br><span class="line">location ^~ &#x2F;static&#x2F; &#123;</span><br><span class="line">   #规则C</span><br><span class="line">&#125;</span><br><span class="line">location ~ \.(gif|jpg|png|js|css)$ &#123;</span><br><span class="line">   #规则D</span><br><span class="line">&#125;</span><br><span class="line">location ~* \.png$ &#123;</span><br><span class="line">   #规则E</span><br><span class="line">&#125;</span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">   #规则F</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在这些规则同时存在的情况下，匹配优先级如下：</p>
-<p>访问 <a target="_blank" rel="noopener" href="http://localhost/">http://localhost/</a> 将匹配规则 A<br>访问 <a target="_blank" rel="noopener" href="http://localhost/login">http://localhost/login</a> 将匹配规则 B，<a target="_blank" rel="noopener" href="http://localhost/register">http://localhost/register</a> 则匹配规则 F<br>访问 <a target="_blank" rel="noopener" href="http://localhost/static/a.html">http://localhost/static/a.html</a> 将匹配规则 C<br>访问 <a target="_blank" rel="noopener" href="http://localhost/a.gif">http://localhost/a.gif</a>, <a target="_blank" rel="noopener" href="http://localhost/b.jpg">http://localhost/b.jpg</a> 将匹配规则 D和规则 E，但是规则 D 顺序优先，规则 E不起作用，而 <a target="_blank" rel="noopener" href="http://localhost/static/c.png%E5%88%99%E4%BC%98%E5%85%88%E5%8C%B9%E9%85%8D%E5%88%B0%E8%A7%84%E5%88%99">http://localhost/static/c.png则优先匹配到规则</a> C<br>访问 <a target="_blank" rel="noopener" href="http://localhost/a.PNG">http://localhost/a.PNG</a> 则匹配规则 E，而不会匹配规则 D，因为规则 E 不区分大小写<br>访问 <a target="_blank" rel="noopener" href="http://localhost/category/id/1111">http://localhost/category/id/1111</a> 则最终匹配到规则 F，因为以上规则都不匹配，这个时候应该是 nginx 转发请求给后端应用服务器，比如 FastCGI（PHP），tomcat（jsp），nginx 作为反向代理服务器存在</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="All Is Well">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" itemprop="url">nginx负载均衡</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-13T18:05:26+08:00">
-                2021-01-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-19T15:57:06+08:00">
+                2020-04-19
               </time>
             
 
@@ -1092,7 +930,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1111,7 +949,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/" itemprop="url">nginx反向代理--实际应用场景之动静分离（解决跨域问题）</a></h1>
+                <a class="post-title-link" href="/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" itemprop="url">设计模式之工厂模式</a></h1>
         
 
         <div class="post-meta">
@@ -1123,8 +961,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-13T18:05:26+08:00">
-                2021-01-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-05T18:00:00+08:00">
+                2019-03-05
               </time>
             
 
@@ -1146,8 +984,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Nginx/" itemprop="url" rel="index">
-                    <span itemprop="name">Nginx</span>
+                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
                   </a>
                 </span>
 
@@ -1185,17 +1023,166 @@
       
         
           
-            <h3 id="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"><a href="#nginx反向代理–实际应用场景之动静分离（解决跨域问题）" class="headerlink" title="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"></a>nginx反向代理–实际应用场景之动静分离（解决跨域问题）</h3><p>上一节我们熟悉了nginx反向代理的原理和基本配置，这节我们来进阶学习下nginx反向代理的应用场景。</p>
-<h4 id="什么是动静分离（即前后端分离）"><a href="#什么是动静分离（即前后端分离）" class="headerlink" title="什么是动静分离（即前后端分离）"></a>什么是动静分离（即前后端分离）</h4><p>动静分离是将网站静态资源与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问。</p>
-<p>动静分离的一种做法是将静态资源部署在nginx上，后台项目部署到应用服务器上，根据一定规则静态资源的请求全部请求nginx服务器，达到动静分离的目标。</p>
-<h4 id="动静分离的好处"><a href="#动静分离的好处" class="headerlink" title="动静分离的好处"></a>动静分离的好处</h4><p>api接口服务化：动静分离之后，后端应用更为服务化，只需要通过提供api接口即可，可以为多个功能模块甚至是多个平台的功能使用，可以有效的节省后端人力，更便于功能维护。</p>
-<p>前后端开发并行：前后端只需要关心接口协议即可，各自的开发相互不干扰，并行开发，并行自测，可以有效的提高开发时间，也可以有些的减少联调时间</p>
-<p>减轻后端服务器压力，提高静态资源访问速度：后端不用再将模板渲染为html返回给用户端，且静态服务器可以采用更为专业的技术提高静态资源的访问速度。</p>
-<h4 id="动静分离的简单实现"><a href="#动静分离的简单实现" class="headerlink" title="动静分离的简单实现"></a>动静分离的简单实现</h4><p>动静分离的实现实际上基于反向代理，主要配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">		#后端api</span><br><span class="line">		location ^~ &#x2F;api &#123;</span><br><span class="line">        	root 后端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">        #前端</span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">        	root 前端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>此时访问<a target="_blank" rel="noopener" href="http://test.com/api%E4%BE%BF%E4%BC%9A%E8%AF%B7%E6%B1%82%E5%88%B0">http://test.com/api便会请求到</a><u><em>后端访问目录</em></u>，</p>
-<p>访问<a target="_blank" rel="noopener" href="http://test.com便会请求到/">http://test.com便会请求到</a><u><em>前端访问目录</em></u></p>
-<p>此配置方案也可用于解决前后端分离引起的跨域问题</p>
+            <h3 id="工厂模式的优点"><a href="#工厂模式的优点" class="headerlink" title="工厂模式的优点"></a>工厂模式的优点</h3><p>1、解耦。可以将对象的创建和使用分离。</p>
+<p>2、可以降低代码重复率。</p>
+<h4 id="简单工厂："><a href="#简单工厂：" class="headerlink" title="简单工厂："></a>简单工厂：</h4><p>通过一个工厂类创建出不同的对象，但是如果需要增加新的对象，就需要修改工厂类，违背开闭设计原则。</p>
+<p>代码示例:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//接口类定义类需要实现的动作</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Phone</span></span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createPhone</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*创建苹果手机</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">IPhone</span> <span class="keyword">implements</span> <span class="title">Phone</span></span></span><br><span class="line"><span class="class">   </span>&#123;</span><br><span class="line">       <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createPhone</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">       </span>&#123;</span><br><span class="line">        	<span class="keyword">echo</span> <span class="string">&quot;iphone&quot;</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*创建华为手机</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">HuaweiP</span> <span class="keyword">implements</span> <span class="title">Phone</span></span></span><br><span class="line"><span class="class">   </span>&#123;</span><br><span class="line">       <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createPhone</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">       </span>&#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;huaweiP&quot;</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//工厂类，负责创建接口的实现类</span></span><br><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">EasyFactory</span></span></span><br><span class="line"><span class="class">   </span>&#123;</span><br><span class="line">		<span class="comment">//创建苹果手机工厂</span></span><br><span class="line">       <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">createIPhone</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">       </span>&#123;</span><br><span class="line">        	<span class="keyword">return</span> <span class="keyword">new</span> IPhone();</span><br><span class="line">       &#125;</span><br><span class="line">		<span class="comment">//创建华为工厂</span></span><br><span class="line">       <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">createHuaweiP</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">       </span>&#123;</span><br><span class="line">        	<span class="keyword">return</span> <span class="keyword">new</span> HuaweiP();</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//如果增加了新的实现类，就需要在这里新增一个创建类的方法，违背开闭原则</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$man</span> = EasyFactory::createIPhone();</span><br><span class="line"><span class="variable">$man</span>-&gt;createPhone();</span><br><span class="line"></span><br><span class="line"><span class="variable">$women</span> = EasyFactory::createHuaweiP();</span><br><span class="line"><span class="variable">$women</span>-&gt;createPhone();</span><br></pre></td></tr></table></figure>
+<h4 id="工厂方法："><a href="#工厂方法：" class="headerlink" title="工厂方法："></a>工厂方法：</h4><p>在简单工厂的基础上把工厂类实现了解耦，其实就是把简单工厂的每个方法封装成了一个单独的类，这样的话如果需要新增一个接口的实现类，只需要再增加一个对应的工厂类就可以了，不用去修改之前已经有的工厂类，符合开闭原则。</p>
+<p><strong>注意：工厂方法只负责一个产品（生产各种类型的手机）</strong></p>
+<p>代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F;定义接口需要实现的动作</span><br><span class="line">interface Phone&#123;</span><br><span class="line">	function createPhone();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;创建苹果手机</span><br><span class="line">class IPhone implements Phone</span><br><span class="line">&#123;</span><br><span class="line">	public function createPhone()</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;IPhone&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> * 创建华为手机</span><br><span class="line"> *&#x2F;</span><br><span class="line">class HuaweiP implements Phone</span><br><span class="line">&#123;</span><br><span class="line">	public function createPhone()</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;HuaweiP&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;定义一个抽象的工厂类</span><br><span class="line">abstract class Factory&#123;</span><br><span class="line">	abstract static function createPeople();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;创建苹果手机工厂</span><br><span class="line">class IPhoneFactory extends Factory&#123;</span><br><span class="line">	static function createIPhone()&#123;</span><br><span class="line">		return new IPhone();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;创建华为手机工厂</span><br><span class="line">class HuaweiPFactory extends Factory&#123;</span><br><span class="line">	static function createHuaweiP()&#123;</span><br><span class="line">		return new HuaweiP();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;如果有新增的接口实现类，在此处新增一个对应的工厂类即可</span><br><span class="line"></span><br><span class="line">ManFactory::createPeople()-&gt;createPhone();</span><br><span class="line">WomenFactory::createPeople()-&gt;createPhone();</span><br></pre></td></tr></table></figure>
+<h4 id="抽象工厂："><a href="#抽象工厂：" class="headerlink" title="抽象工厂："></a>抽象工厂：</h4><p>工厂方法的扩展版，先是把接口需要实现的功能进行了细分，然后再创建需要生产对应产品的工厂。</p>
+<h6 id="优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等"><a href="#优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等" class="headerlink" title="优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等"></a>优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等</h6><h6 id="缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。"><a href="#缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。" class="headerlink" title="缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。"></a>缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。</h6><p><strong>注意：抽象工厂负责多个产品（生产各种类型的手机，各种类型的口罩等等）</strong></p>
+<p>代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F;手机</span><br><span class="line">interface Phone&#123;</span><br><span class="line">	public function getPhone($value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class iphone implements Phone</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getPhone($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;iphone&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class huawei implements Phone</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getPhone($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;huawei&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;口罩</span><br><span class="line">interface Mask&#123;</span><br><span class="line">	public function getMask($value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class normal implements Mask</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getMask($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;normal&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class n95 implements Mask</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getMask($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;n95&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;生产手机和口罩</span><br><span class="line">abstract class FactoryBase&#123;</span><br><span class="line"> 	abstract static function createPhone();</span><br><span class="line"> 	abstract static function createMask();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;A工厂生产苹果手机和n95口罩</span><br><span class="line">class AFactory extends FactoryBase</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	static function createPhone()</span><br><span class="line">	&#123;</span><br><span class="line">		return new iphone();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	static function createMask()</span><br><span class="line">	&#123;</span><br><span class="line">		return new n95();</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;如果新增了新的产品，比如电脑，则需要在这里创建相应类型的电脑的对象</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;B工厂生产华为手机和普通口罩</span><br><span class="line">class BFactory extends FactoryBase</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">		static function createPhone()</span><br><span class="line">	&#123;</span><br><span class="line">		return new huawei();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	static function createMask()</span><br><span class="line">	&#123;</span><br><span class="line">		return new normal();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$a &#x3D; AFactory::createPhone();</span><br><span class="line">$a-&gt;getPhone(1);</span><br><span class="line">$a2 &#x3D; AFactory::createMask();</span><br><span class="line">$a2-&gt;getMask(1);</span><br><span class="line">$b &#x3D; BFactory::createPhone();</span><br><span class="line">$b-&gt;getPhone(1);</span><br><span class="line">$b &#x3D; BFactory::createMask();</span><br><span class="line">$b-&gt;getMask(1);</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="All Is Well">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" itemprop="url">设计模式之单例模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-05T15:22:14+08:00">
+                2019-03-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
+<p>2.可以提升系统的性能</p>
+<p>3.提供了唯一实例的受控访问，方便后期维护</p>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
+
 
           
         

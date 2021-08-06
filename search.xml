@@ -74,7 +74,7 @@
   </entry>
   <entry>
     <title>composer内存溢出问题解决</title>
-    <url>/2021/03/20/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <url>/2020/04/19/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<p>php -d memory_limit=-1 /usr/bin/composer update</p>
 <p>此处的composer需要用全路径</p>
 ]]></content>
@@ -179,7 +179,7 @@
   </entry>
   <entry>
     <title>nginx负载均衡</title>
-    <url>/2021/01/13/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
+    <url>/2020/04/19/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
     <content><![CDATA[<h4 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h4><p>随着社会的快速发展，人们对性能的要求越来越苛刻，一些大型网站用一台服务器根本就无法应对庞大的用户群，服务器压力越来越大，我们可能首先会将数据库，静态文件分离出去。但是随着发展，单独业务API的请求的压力也会变得很大，这时候我们可能需要做负载均衡将一台服务器面临的压力分散到多台服务器上。</p>
 <p>负载均衡就是把原来一台服务器要干的事情通过反向代理，变成多台服务器一起干。</p>
 <h4 id="nginx负载均衡配置"><a href="#nginx负载均衡配置" class="headerlink" title="nginx负载均衡配置"></a>nginx负载均衡配置</h4><p>nginx的负载均衡主要是对proxy_pass和upstream的配置,简单配置如下：</p>
@@ -209,7 +209,7 @@
   </entry>
   <entry>
     <title>rand()查询效率问题解决</title>
-    <url>/2021/03/12/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <url>/2020/07/17/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
 <p>这是最基本的rand（）用法。</p>
 <h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
@@ -256,7 +256,7 @@
   </entry>
   <entry>
     <title>设计模式之工厂模式</title>
-    <url>/2021/08/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
+    <url>/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="工厂模式的优点"><a href="#工厂模式的优点" class="headerlink" title="工厂模式的优点"></a>工厂模式的优点</h3><p>1、解耦。可以将对象的创建和使用分离。</p>
 <p>2、可以降低代码重复率。</p>
 <h4 id="简单工厂："><a href="#简单工厂：" class="headerlink" title="简单工厂："></a>简单工厂：</h4><p>通过一个工厂类创建出不同的对象，但是如果需要增加新的对象，就需要修改工厂类，违背开闭设计原则。</p>
@@ -280,7 +280,7 @@
   </entry>
   <entry>
     <title>设计模式之单例模式</title>
-    <url>/2021/01/26/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
+    <url>/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
 <h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
 <p>2.可以提升系统的性能</p>
