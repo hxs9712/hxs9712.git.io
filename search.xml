@@ -256,7 +256,7 @@
   </entry>
   <entry>
     <title>设计模式之工厂模式</title>
-    <url>/2021/01/22/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
+    <url>/2021/08/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="工厂模式的优点"><a href="#工厂模式的优点" class="headerlink" title="工厂模式的优点"></a>工厂模式的优点</h3><p>1、解耦。可以将对象的创建和使用分离。</p>
 <p>2、可以降低代码重复率。</p>
 <h4 id="简单工厂："><a href="#简单工厂：" class="headerlink" title="简单工厂："></a>简单工厂：</h4><p>通过一个工厂类创建出不同的对象，但是如果需要增加新的对象，就需要修改工厂类，违背开闭设计原则。</p>
