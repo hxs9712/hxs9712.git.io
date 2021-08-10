@@ -47,7 +47,7 @@
   </entry>
   <entry>
     <title>rand()查询效率问题解决</title>
-    <url>/2021/03/12/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <url>/2020/07/17/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
 <p>这是最基本的rand（）用法。</p>
 <h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
@@ -58,10 +58,10 @@
 <h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
 ]]></content>
       <categories>
-        <category>Mysql</category>
+        <category>mysql</category>
       </categories>
       <tags>
-        <tag>Mysql</tag>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
