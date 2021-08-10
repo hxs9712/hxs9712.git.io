@@ -395,4 +395,103 @@
         <tag>Windows</tag>
       </tags>
   </entry>
+  <entry>
+    <title>HyperLogLog详解</title>
+    <url>/2020/05/18/Redis/HyperLogLog%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><p>Redis HyperLogLog是用来做基数统计的算法</p>
+<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><p>当输入元素的数量或者体积非常非常大时，计算基数只需要占用很小的空间即可完成。每个HyperLogLog键只需要花费12kb内存，就可以计算接近2^64个不同元素的基数，这和计算基数时，元素越多耗费内存越大的集合形成鲜明对比。</p>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><p>因为HyperLogLog只会根据元素来统计基数，而不会存入元素本身，所以不能像集合那样，返回各个元素。</p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; pfadd test 1 1 1 2 2 3 4 5 5 #添加一个或多个元素到HyperLogLog中</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; PFCOUNT test #统计基数，只统计不同的元素</span><br><span class="line">(integer) 5</span><br><span class="line">127.0.0.1:6379&gt; pfadd test2 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; PFMERGE test3 test2 test #将多个HyperLogLog合并为一个HyperLogLog</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; pfcount test3</span><br><span class="line">(integer) 5</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis事务和Mysql事务的却别</title>
+    <url>/2020/05/23/Redis/Redis%E4%BA%8B%E5%8A%A1%E5%92%8CMysql%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
+    <content><![CDATA[<h5 id="Redis事务"><a href="#Redis事务" class="headerlink" title="Redis事务"></a>Redis事务</h5><p>默认状态未开启，执行步骤：</p>
+<ol>
+<li>multi 开启事务</li>
+<li>exec 执行事务</li>
+<li>discard 取消事务</li>
+</ol>
+<p>特点：</p>
+<ul>
+<li>单独的隔离操作，事务会按照顺序执行，不会被客户端的其它请求干扰</li>
+<li>由于redis的事务只是把命令放到了队列里，并没有执行，而是等到最后一起执行，从而事务间就不会导致数据脏读、不可重复读、幻读的问题，所以也就没有隔离级别的概念</li>
+<li>执行事务时，如果有语法错误，事务不会执行</li>
+<li>不具备原子性，执行事务时，如果有命令执行失败，事务会继续执行，不会执行回滚操作，不会影响后续的操作</li>
+</ul>
+<h5 id="Mysql事务"><a href="#Mysql事务" class="headerlink" title="Mysql事务"></a>Mysql事务</h5><p>默认开启事务，每次语句执行都会开启事务，执行步骤：</p>
+<ol>
+<li>begin 显示的开启事务</li>
+<li>commit 提交事务，执行语句</li>
+<li>rollback 取消事务，进行回滚操作，撤销所有更改</li>
+</ol>
+<p>特点：</p>
+<ul>
+<li>原子性，一个事务中的操作，要么全部完成，要么全部失败，只要执行中发生错误，就会被回滚到事务执行前的状态。</li>
+<li>一致性，在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。</li>
+<li>隔离性，数据库允许多个并发事务同时对数据进行读写和修改，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致，事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）。</li>
+<li>持久性，事务处理结束后，对数据的修改是永久的，即使系统故障也不会丢失</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>乐观锁</title>
+    <url>/2020/05/20/Redis/%E4%B9%90%E8%A7%82%E9%94%81/</url>
+    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><p>Redis的乐观锁主要用watch命令实现，当watch命令监视某个值的时候，那么事务在执行之前就会检测该值是否已发生改变，如果在事务执行前该值已被修改，则事务不会执行。</p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#情况一，money值未在事务执行之前发生改变，事务正常执行</span><br><span class="line">127.0.0.1:6379&gt; set money 100</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set out 0</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch money</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby money 20</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; incrby out 20</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">1) (integer) 80</span><br><span class="line">2) (integer) 20</span><br><span class="line"></span><br><span class="line">#情况二，money值在事务执行之前发生改变，事务正常执行</span><br><span class="line">##客户端1</span><br><span class="line">###监听m值并开启事务，此处还未执行事务</span><br><span class="line">127.0.0.1:6379&gt; set m 100</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch m</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby m 20</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">##客户端2</span><br><span class="line">###修改m值</span><br><span class="line">127.0.0.1:6379&gt; set m 0</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line"></span><br><span class="line">##客户端1</span><br><span class="line">###执行事务会失败，返回nil</span><br><span class="line">127.0.0.1:6379&gt; exec #此时会比较m值是否已经被修改</span><br><span class="line">(nil)</span><br><span class="line">127.0.0.1:6379&gt; unwatch #此时需要取消监听</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch m #从新监听m值</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi #重新开启事务</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby m 20</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec #事务正常执行</span><br><span class="line">1) (integer) -20</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>事务</title>
+    <url>/2020/05/20/Redis/%E4%BA%8B%E5%8A%A1/</url>
+    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><p>Redis事务可以一次执行多个命令，主要有以下三个步骤：</p>
+<p>（1）multi，开启事务</p>
+<p>（2）把命令全部存入队列中</p>
+<p>（3）exce，执行队列中的所有命令</p>
+<p>有三个特点：</p>
+<p>（1）在exce执行命令前，所有命令会被放入队列缓存</p>
+<p>（2）如果执行命令中，有命令执行失败，其它的命令会继续执行，不受影响，但如果是语法错误，则所有命令都不会执行</p>
+<p>（3）在事务执行过程中，其它客户端提交的命令请求无法插入到事务执行命令序列中</p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#语法错误</span><br><span class="line">127.0.0.1:6379&gt; MULTI #开启事务</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set a a</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; get a</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; sadd name zhangsan lisi</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS key #此处语法错误</span><br><span class="line">(error) ERR unknown command &#96;smem&#96;, with args beginning with:</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS name</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec #语法错误，事务无法正常执行，会报错</span><br><span class="line">(error) EXECABORT Transaction discarded because of previous errors.</span><br><span class="line"></span><br><span class="line">#正常情况</span><br><span class="line">127.0.0.1:6379&gt; multi #开启事务</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set a a</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; get a</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; sadd name zhangsan lisi</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS name</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec #正常执行</span><br><span class="line">1) OK</span><br><span class="line">2) &quot;a&quot;</span><br><span class="line">3) (integer) 2</span><br><span class="line">4) 1) &quot;zhangsan&quot;</span><br><span class="line">   2) &quot;lisi&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line"></span><br><span class="line">#命令执行失败情况</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set a a</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; get a</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; incr a #此处a不是整数，无法进行加减操作，会失败，但不会影响后边两个命令的执行</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; set b b</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; get b</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">1) OK</span><br><span class="line">2) &quot;a&quot;</span><br><span class="line">3) (error) ERR value is not an integer or out of range</span><br><span class="line">4) OK</span><br><span class="line">5) &quot;b&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>发布与订阅</title>
+    <url>/2020/05/19/Redis/%E5%8F%91%E5%B8%83%E4%B8%8E%E8%AE%A2%E9%98%85/</url>
+    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><p>Redis发布与订阅消息是一种通信模式，就相当于报社发布报纸，送给订阅报纸的人们一样。</p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><h5 id="发布与订阅"><a href="#发布与订阅" class="headerlink" title="发布与订阅"></a>发布与订阅</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#发布端</span><br><span class="line">127.0.0.1:6379&gt; PUBLISH msg hello #发布hello信息到msg频道上</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line"></span><br><span class="line">#订阅端</span><br><span class="line">127.0.0.1:6379&gt; SUBSCRIBE msg #订阅msg这个频道，一旦有消息推送到msg频道便会立马接收过来</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;subscribe&quot;</span><br><span class="line">2) &quot;msg&quot;</span><br><span class="line">3) (integer) 1</span><br><span class="line">1) &quot;message&quot;</span><br><span class="line">2) &quot;msg&quot;</span><br><span class="line">3) &quot;hello&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h5 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; PUBSUB CHANNELS #查看当前活跃的频道列表</span><br><span class="line">1) &quot;msg&quot;</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; PUNSUBSCRIBE m* #退订所有m开头的频道</span><br><span class="line">1) &quot;punsubscribe&quot;</span><br><span class="line">2) &quot;m*&quot;</span><br><span class="line">3) (integer) 0</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line">127.0.0.1:6379&gt; UNSUBSCRIBE msg #退订指定频道</span><br><span class="line">1) &quot;unsubscribe&quot;</span><br><span class="line">2) &quot;msg&quot;</span><br><span class="line">3) (integer) 0</span><br><span class="line">127.0.0.1:6379&gt; PSUBSCRIBE msg msg1 #订阅多个频道</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;psubscribe&quot;</span><br><span class="line">2) &quot;msg&quot;</span><br><span class="line">3) (integer) 1</span><br><span class="line">1) &quot;psubscribe&quot;</span><br><span class="line">2) &quot;msg1&quot;</span><br><span class="line">3) (integer) 2</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
 </search>
