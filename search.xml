@@ -1,80 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Redis持久化</title>
-    <url>/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</url>
-    <content><![CDATA[<h4 id="Redis持久化"><a href="#Redis持久化" class="headerlink" title="Redis持久化"></a>Redis持久化</h4><p>redis为了防止宕机、停电等意外情况导致的数据丢失，便有了持久化的解决方案，具体有两种方式，RDB持久化和AOF持久化。</p>
-<h4 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h4><p>RDB，全称Redis database，也就是redis数据库，顾名思义，这种持久化方式主要是以存储数据为主。简单来说，就是在一定时间内，进行了多少次操作，比如在15分钟内，进行了1000次操作，便将数据生成快照并存储到磁盘上，文件名默认为dump.rdb，恢复数据的时候就从磁盘上读出来。</p>
-<h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><p>AOF，全称Append Only File，只能追加并且不可以改写的文件，只因为这个文件里存储的都是命令。简单来说，AOF就是每隔一定时间把命令存储到文件里，文件名默认为appendonly.aof，等到需要恢复数据的时候就重新执行一遍文件中的所有命令。</p>
-<h4 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h4><h5 id="RDB持久化方式分析"><a href="#RDB持久化方式分析" class="headerlink" title="RDB持久化方式分析"></a>RDB持久化方式分析</h5><p>1、RDB方式是将一段时间段内的数据快照持久化到磁盘中</p>
-<p>2、RDB持久化过程中会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p>
-<p>3、RDB持久化时，Redis会单独fork一个子进程来处理，而主进程不需要进行任何IO操作，从而保证了Redis的高性能</p>
-<p>4、RDB是每隔一段时间执行一次，这样的话就可能会造成数据丢失，比如每隔五分钟持久化一次，那就有可能丢失五分钟的数据，如果对数据的完整性不太重视，则适合用RDB这种持久化方式，因为它比AOF要高效</p>
-<h5 id="AOF持久化方式分析"><a href="#AOF持久化方式分析" class="headerlink" title="AOF持久化方式分析"></a>AOF持久化方式分析</h5><p>1、AOF持久化策略是每秒钟执行一次，把指令记录到磁盘中，即使发生了宕机、停电等意外情况，也只会丢失1秒（官方说1秒，其实是要比1秒多的，）的数据，并且如果硬盘IO慢，会阻塞父进程</p>
-<p>2、如果追加日志时，磁盘满了，或者其它意外情况导致日志不完整，redis提供了看redis-check-aof工具、可以修复日志</p>
-<p>3、由于AOF文件只能追加、不能改写，文件便会随着时间的增长越来越大，因此，redis提供了AOF文件重写（rewrite）机制，当AOF文件大小超过配置的值时，redis便会压缩AOF文件，只保留可以恢复数据的指令。比如100个incr命令，合并成一条set指令，既能保证性能，也能压缩文件大小。<strong>如果你直接执行BGREWRITEAOF命令，那么redis会生成一个全新的AOF文件，其中便包括了可以恢复现有数据的最少的命令集。</strong></p>
-<p>4、AOF持久化过程中也会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p>
-<p>5、如果AOF文件出现了问题，redis并不会贸然加载这个有问题的AOF文件，而是报错退出。这时可以通过以下步骤来修复出错的文件：</p>
-<p>1.备份被写坏的AOF文件<br>2.运行redis-check-aof –fix进行修复<br>3.用diff -u来看下两个文件的差异，确认问题点<br>4.重启redis，加载修复后的AOF文件</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>到底是使用RDB还是AOF，Redis显然更高效，但是AOF显然可以更可靠的保证数据的完整性。至于选择RDB还是AOF，官方建议是两者同时用，这样可以最高能力保证数据的可靠性。</p>
-]]></content>
-      <categories>
-        <category>redis</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>String字符串类型详解（上）</title>
-    <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
-    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><h5 id="String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"><a href="#String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。" class="headerlink" title="String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"></a><u>String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。</u></h5><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><h5 id="Set和Get：写值和取值"><a href="#Set和Get：写值和取值" class="headerlink" title="Set和Get：写值和取值"></a>Set和Get：写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\language_env\redis&gt;redis-cli.exe</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="EXISTS：检测key是否存在"><a href="#EXISTS：检测key是否存在" class="headerlink" title="EXISTS：检测key是否存在"></a>EXISTS：检测key是否存在</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; EXISTS k1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="mset和mget：批量写值和取值"><a href="#mset和mget：批量写值和取值" class="headerlink" title="mset和mget：批量写值和取值"></a>mset和mget：批量写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset k1 v1 k2 v2 k3 v3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k2</span><br><span class="line">1) &quot;v2&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="keys：查看所有key"><a href="#keys：查看所有key" class="headerlink" title="keys：查看所有key"></a>keys：查看所有key</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;k2&quot;</span><br><span class="line">2) &quot;k3&quot;</span><br><span class="line">3) &quot;k1&quot;</span><br></pre></td></tr></table></figure>
-<h5 id="flushall：清除所有key"><a href="#flushall：清除所有key" class="headerlink" title="flushall：清除所有key"></a>flushall：清除所有key</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; flushall</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br></pre></td></tr></table></figure>
-<h4 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h4><h5 id="strlen-获取字符串长度"><a href="#strlen-获取字符串长度" class="headerlink" title="strlen:获取字符串长度"></a>strlen:获取字符串长度</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; strlen k1</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="substr：截取字符串"><a href="#substr：截取字符串" class="headerlink" title="substr：截取字符串"></a>substr：截取字符串</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; substr k1 1 2</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="append：追加字符串append"><a href="#append：追加字符串append" class="headerlink" title="append：追加字符串append"></a>append：追加字符串append</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; append k1 ,hello</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1,hello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="incr和decr：增加1和减少1"><a href="#incr和decr：增加1和减少1" class="headerlink" title="incr和decr：增加1和减少1"></a>incr和decr：增加1和减少1</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set age 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; incr age</span><br><span class="line">(integer) 13</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;13&quot;</span><br><span class="line">127.0.0.1:6379&gt; decr age</span><br><span class="line">(integer) 12</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;12&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="incrby和decrby：增加n和减少n"><a href="#incrby和decrby：增加n和减少n" class="headerlink" title="incrby和decrby：增加n和减少n"></a>incrby和decrby：增加n和减少n</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; incrby age 20</span><br><span class="line">(integer) 32</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;32&quot;</span><br><span class="line">127.0.0.1:6379&gt; decrby age 10</span><br><span class="line">(integer) 22</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;22&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2"><a href="#expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2" class="headerlink" title="expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2"></a>expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; expire age 10 #设置为10秒</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩5秒</span><br><span class="line">(integer) 5</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩3秒</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩2秒</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩1秒</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩0秒</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #key已过期，也就是key已经不存在了，则返回-2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-
-
-<h4 id="高阶操作"><a href="#高阶操作" class="headerlink" title="高阶操作"></a>高阶操作</h4><h5 id="怎么存储对象？"><a href="#怎么存储对象？" class="headerlink" title="怎么存储对象？"></a>怎么存储对象？</h5><p>第一种：不推荐，存值取值都需要json操作</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set user:1 &#123;name:xiaoming,age:12&#125;</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get user:1</span><br><span class="line">&quot;&#123;name:xiaoming,age:12&#125;&quot;</span><br></pre></td></tr></table></figure>
-<p>第二种：推荐，可以直接取想要用的字段，并且redis足以承受此种方法的性能压力，不用担心key太多</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset user:1:name xiaoming user:1:age 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget user:1:name user:1:age</span><br><span class="line">1) &quot;xiaoming&quot;</span><br><span class="line">2) &quot;12&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-
-]]></content>
-      <categories>
-        <category>redis</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>String字符串类型详解（下）</title>
-    <url>/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</url>
-    <content><![CDATA[<h4 id="隐藏技巧"><a href="#隐藏技巧" class="headerlink" title="隐藏技巧"></a>隐藏技巧</h4><h5 id="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"><a href="#SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；" class="headerlink" title="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"></a>SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1,hello</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; setrange k1 2 ww</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange k1 2 7</span><br><span class="line">&quot;wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="SETEX：设置过期时间"><a href="#SETEX：设置过期时间" class="headerlink" title="SETEX：设置过期时间"></a>SETEX：设置过期时间</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setex k2 5 v2 #设置过期时间为5秒</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"><a href="#SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功" class="headerlink" title="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"></a>SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1 #以为k1是存在的，所以返回0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx k3 v3 #以为k3是不存在的，所以返回1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1      #此处可以发现k1依然为旧值</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
-<p>综合上篇总结，基本上就是Redis中能处理String字符串的所有方法了，有90%的程序员只会set，get，会用了这些，你就是那10%；</p>
-]]></content>
-      <categories>
-        <category>redis</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>composer内存溢出问题解决</title>
-    <url>/2020/04/19/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <url>/2020/04/19/Composer/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<p>php -d memory_limit=-1 /usr/bin/composer update</p>
 <p>此处的composer需要用全路径</p>
 ]]></content>
@@ -86,30 +14,30 @@
       </tags>
   </entry>
   <entry>
-    <title>nginx反向代理--实际应用场景之动静分离（解决跨域问题）</title>
-    <url>/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/</url>
-    <content><![CDATA[<h3 id="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"><a href="#nginx反向代理–实际应用场景之动静分离（解决跨域问题）" class="headerlink" title="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"></a>nginx反向代理–实际应用场景之动静分离（解决跨域问题）</h3><p>上一节我们熟悉了nginx反向代理的原理和基本配置，这节我们来进阶学习下nginx反向代理的应用场景。</p>
-<h4 id="什么是动静分离（即前后端分离）"><a href="#什么是动静分离（即前后端分离）" class="headerlink" title="什么是动静分离（即前后端分离）"></a>什么是动静分离（即前后端分离）</h4><p>动静分离是将网站静态资源与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问。</p>
-<p>动静分离的一种做法是将静态资源部署在nginx上，后台项目部署到应用服务器上，根据一定规则静态资源的请求全部请求nginx服务器，达到动静分离的目标。</p>
-<h4 id="动静分离的好处"><a href="#动静分离的好处" class="headerlink" title="动静分离的好处"></a>动静分离的好处</h4><p>api接口服务化：动静分离之后，后端应用更为服务化，只需要通过提供api接口即可，可以为多个功能模块甚至是多个平台的功能使用，可以有效的节省后端人力，更便于功能维护。</p>
-<p>前后端开发并行：前后端只需要关心接口协议即可，各自的开发相互不干扰，并行开发，并行自测，可以有效的提高开发时间，也可以有些的减少联调时间</p>
-<p>减轻后端服务器压力，提高静态资源访问速度：后端不用再将模板渲染为html返回给用户端，且静态服务器可以采用更为专业的技术提高静态资源的访问速度。</p>
-<h4 id="动静分离的简单实现"><a href="#动静分离的简单实现" class="headerlink" title="动静分离的简单实现"></a>动静分离的简单实现</h4><p>动静分离的实现实际上基于反向代理，主要配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">		#后端api</span><br><span class="line">		location ^~ &#x2F;api &#123;</span><br><span class="line">        	root 后端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">        #前端</span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">        	root 前端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>此时访问<a href="http://test.com/api%E4%BE%BF%E4%BC%9A%E8%AF%B7%E6%B1%82%E5%88%B0">http://test.com/api便会请求到</a><u><em>后端访问目录</em></u>，</p>
-<p>访问<a href="http://test.com便会请求到/">http://test.com便会请求到</a><u><em>前端访问目录</em></u></p>
-<p>此配置方案也可用于解决前后端分离引起的跨域问题</p>
+    <title>自定义composer包步骤</title>
+    <url>/2021/08/06/Composer/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/</url>
+    <content><![CDATA[<p>第一步，创建git仓库，把仓库clone到本地</p>
+<p>第二步，进入本地仓库文件夹，执行composer init</p>
+<p>第三步，根据命令行提示，填写基本信息，如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#填写作者信息</span><br><span class="line">Author [zousi &lt;3056953305@qq.com&gt;, n to skip]: zousi &lt;3056953305@qq.com&gt;</span><br><span class="line">#定义包的稳定性，可用的稳定性标识（按字母排序）：dev、alpha、beta、RC、stable</span><br><span class="line">Minimum Stability []: dev</span><br><span class="line">#选择包类型</span><br><span class="line">Package Type (e.g. library, project, metapackage, composer-plugin) []: library</span><br><span class="line">#自定义许可证</span><br><span class="line">License []:</span><br><span class="line">#定义包需要的依赖</span><br><span class="line">Define your dependencies.</span><br><span class="line"></span><br><span class="line">Would you like to define your dependencies (require) interactively [yes]?</span><br><span class="line">#搜索需要的包</span><br><span class="line">Search for a package:</span><br><span class="line">#第二次确认</span><br><span class="line">Would you like to define your dev dependencies (require-dev) interactively [yes]?</span><br><span class="line">Search for a package:</span><br><span class="line">#确认json文件的基本信息</span><br><span class="line">&#123;</span><br><span class="line">    &quot;name&quot;: &quot;hsx9712&#x2F;composer_init&quot;,</span><br><span class="line">    &quot;description&quot;: &quot;composer_init&quot;,</span><br><span class="line">    &quot;type&quot;: &quot;library&quot;,</span><br><span class="line">    &quot;authors&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;zousi&quot;,</span><br><span class="line">            &quot;email&quot;: &quot;3056953305@qq.com&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;minimum-stability&quot;: &quot;dev&quot;,</span><br><span class="line">    &quot;require&quot;: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">#是否确认生成</span><br><span class="line">Do you confirm generation [yes]? yes</span><br><span class="line">#是否把vendor文件夹放到.gitignore文件中</span><br><span class="line">Would you like the vendor directory added to your .gitignore [yes]? yes</span><br></pre></td></tr></table></figure>
+<p>创建完成。</p>
+<p>第四步、提交到git远程仓库</p>
+<p>第五步，复制git地址</p>
+<p>第六步、打开<a href="https://packagist.org/%EF%BC%8C%E5%A6%82%E6%9E%9C%E6%B2%A1%E6%9C%89%E8%B4%A6%E5%8F%B7%EF%BC%8C%E5%85%88%E5%88%9B%E5%BB%BA%E8%B4%A6%E5%8F%B7">https://packagist.org/，如果没有账号，先创建账号</a></p>
+<p>第七步、登录后点右上方的Submit按钮</p>
+<p>第八步、在输入框粘贴git地址，并提交</p>
+<p>完成</p>
 ]]></content>
       <categories>
-        <category>Nginx</category>
+        <category>Composer</category>
       </categories>
       <tags>
-        <tag>Nginx</tag>
+        <tag>Composer</tag>
       </tags>
   </entry>
   <entry>
     <title>nginx反向代理</title>
-    <url>/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</url>
+    <url>/2021/01/22/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</url>
     <content><![CDATA[<h3 id="nginx反向代理"><a href="#nginx反向代理" class="headerlink" title="nginx反向代理"></a>nginx反向代理</h3><h4 id="什么叫反向代理？"><a href="#什么叫反向代理？" class="headerlink" title="什么叫反向代理？"></a>什么叫反向代理？</h4><p>反向代理就是用一个代理服务器代替用户转发请求到真实服务器，从而达到隐藏目标服务器的需求。</p>
 <h4 id="反向代理的用途"><a href="#反向代理的用途" class="headerlink" title="反向代理的用途"></a>反向代理的用途</h4><p>动静分离，负载均衡都是基于反向代理来实现的。</p>
 <p>示意图：</p>
@@ -145,8 +73,30 @@
       </tags>
   </entry>
   <entry>
+    <title>nginx反向代理--实际应用场景之动静分离（解决跨域问题）</title>
+    <url>/2021/01/13/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/</url>
+    <content><![CDATA[<h3 id="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"><a href="#nginx反向代理–实际应用场景之动静分离（解决跨域问题）" class="headerlink" title="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"></a>nginx反向代理–实际应用场景之动静分离（解决跨域问题）</h3><p>上一节我们熟悉了nginx反向代理的原理和基本配置，这节我们来进阶学习下nginx反向代理的应用场景。</p>
+<h4 id="什么是动静分离（即前后端分离）"><a href="#什么是动静分离（即前后端分离）" class="headerlink" title="什么是动静分离（即前后端分离）"></a>什么是动静分离（即前后端分离）</h4><p>动静分离是将网站静态资源与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问。</p>
+<p>动静分离的一种做法是将静态资源部署在nginx上，后台项目部署到应用服务器上，根据一定规则静态资源的请求全部请求nginx服务器，达到动静分离的目标。</p>
+<h4 id="动静分离的好处"><a href="#动静分离的好处" class="headerlink" title="动静分离的好处"></a>动静分离的好处</h4><p>api接口服务化：动静分离之后，后端应用更为服务化，只需要通过提供api接口即可，可以为多个功能模块甚至是多个平台的功能使用，可以有效的节省后端人力，更便于功能维护。</p>
+<p>前后端开发并行：前后端只需要关心接口协议即可，各自的开发相互不干扰，并行开发，并行自测，可以有效的提高开发时间，也可以有些的减少联调时间</p>
+<p>减轻后端服务器压力，提高静态资源访问速度：后端不用再将模板渲染为html返回给用户端，且静态服务器可以采用更为专业的技术提高静态资源的访问速度。</p>
+<h4 id="动静分离的简单实现"><a href="#动静分离的简单实现" class="headerlink" title="动静分离的简单实现"></a>动静分离的简单实现</h4><p>动静分离的实现实际上基于反向代理，主要配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">      #listen      443 ssl;</span><br><span class="line">        server_name  test.com alias test.com;</span><br><span class="line"></span><br><span class="line">		#后端api</span><br><span class="line">		location ^~ &#x2F;api &#123;</span><br><span class="line">        	root 后端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">        #前端</span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">        	root 前端访问目录;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+<p>此时访问<a href="http://test.com/api%E4%BE%BF%E4%BC%9A%E8%AF%B7%E6%B1%82%E5%88%B0">http://test.com/api便会请求到</a><u><em>后端访问目录</em></u>，</p>
+<p>访问<a href="http://test.com便会请求到/">http://test.com便会请求到</a><u><em>前端访问目录</em></u></p>
+<p>此配置方案也可用于解决前后端分离引起的跨域问题</p>
+]]></content>
+      <categories>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>nginx反向代理session失效问题解决</title>
-    <url>/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <url>/2021/03/22/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<h3 id="问题场景"><a href="#问题场景" class="headerlink" title="问题场景"></a>问题场景</h3><p>最近遇到一个做单点登录的需求，我准备简单做，也就是账号之间的互绑，比如A网站的账号关联上B网站的账号，登录了A网站之后再去B网站可以免登录，我是用nginx反向代理来解决的。</p>
 <p>刚开始我是这么配置的：</p>
 <p> <code>location /aLogin &#123;</code>             </p>
@@ -179,7 +129,7 @@
   </entry>
   <entry>
     <title>nginx负载均衡</title>
-    <url>/2020/04/19/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
+    <url>/2020/04/19/Nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
     <content><![CDATA[<h4 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h4><p>随着社会的快速发展，人们对性能的要求越来越苛刻，一些大型网站用一台服务器根本就无法应对庞大的用户群，服务器压力越来越大，我们可能首先会将数据库，静态文件分离出去。但是随着发展，单独业务API的请求的压力也会变得很大，这时候我们可能需要做负载均衡将一台服务器面临的压力分散到多台服务器上。</p>
 <p>负载均衡就是把原来一台服务器要干的事情通过反向代理，变成多台服务器一起干。</p>
 <h4 id="nginx负载均衡配置"><a href="#nginx负载均衡配置" class="headerlink" title="nginx负载均衡配置"></a>nginx负载均衡配置</h4><p>nginx的负载均衡主要是对proxy_pass和upstream的配置,简单配置如下：</p>
@@ -208,8 +158,97 @@
       </tags>
   </entry>
   <entry>
+    <title>String字符串类型详解（下）</title>
+    <url>/2021/05/14/Redis/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</url>
+    <content><![CDATA[<h4 id="隐藏技巧"><a href="#隐藏技巧" class="headerlink" title="隐藏技巧"></a>隐藏技巧</h4><h5 id="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"><a href="#SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；" class="headerlink" title="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"></a>SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1,hello</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; setrange k1 2 ww</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange k1 2 7</span><br><span class="line">&quot;wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="SETEX：设置过期时间"><a href="#SETEX：设置过期时间" class="headerlink" title="SETEX：设置过期时间"></a>SETEX：设置过期时间</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setex k2 5 v2 #设置过期时间为5秒</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"><a href="#SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功" class="headerlink" title="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"></a>SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1 #以为k1是存在的，所以返回0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx k3 v3 #以为k3是不存在的，所以返回1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1      #此处可以发现k1依然为旧值</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<p>综合上篇总结，基本上就是Redis中能处理String字符串的所有方法了，有90%的程序员只会set，get，会用了这些，你就是那10%；</p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis持久化</title>
+    <url>/2021/08/06/Redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</url>
+    <content><![CDATA[<h4 id="Redis持久化"><a href="#Redis持久化" class="headerlink" title="Redis持久化"></a>Redis持久化</h4><p>redis为了防止宕机、停电等意外情况导致的数据丢失，便有了持久化的解决方案，具体有两种方式，RDB持久化和AOF持久化。</p>
+<h4 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h4><p>RDB，全称Redis database，也就是redis数据库，顾名思义，这种持久化方式主要是以存储数据为主。简单来说，就是在一定时间内，进行了多少次操作，比如在15分钟内，进行了1000次操作，便将数据生成快照并存储到磁盘上，文件名默认为dump.rdb，恢复数据的时候就从磁盘上读出来。</p>
+<h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><p>AOF，全称Append Only File，只能追加并且不可以改写的文件，只因为这个文件里存储的都是命令。简单来说，AOF就是每隔一定时间把命令存储到文件里，文件名默认为appendonly.aof，等到需要恢复数据的时候就重新执行一遍文件中的所有命令。</p>
+<h4 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h4><h5 id="RDB持久化方式分析"><a href="#RDB持久化方式分析" class="headerlink" title="RDB持久化方式分析"></a>RDB持久化方式分析</h5><p>1、RDB方式是将一段时间段内的数据快照持久化到磁盘中</p>
+<p>2、RDB持久化过程中会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p>
+<p>3、RDB持久化时，Redis会单独fork一个子进程来处理，而主进程不需要进行任何IO操作，从而保证了Redis的高性能</p>
+<p>4、RDB是每隔一段时间执行一次，这样的话就可能会造成数据丢失，比如每隔五分钟持久化一次，那就有可能丢失五分钟的数据，如果对数据的完整性不太重视，则适合用RDB这种持久化方式，因为它比AOF要高效</p>
+<h5 id="AOF持久化方式分析"><a href="#AOF持久化方式分析" class="headerlink" title="AOF持久化方式分析"></a>AOF持久化方式分析</h5><p>1、AOF持久化策略是每秒钟执行一次，把指令记录到磁盘中，即使发生了宕机、停电等意外情况，也只会丢失1秒（官方说1秒，其实是要比1秒多的，）的数据，并且如果硬盘IO慢，会阻塞父进程</p>
+<p>2、如果追加日志时，磁盘满了，或者其它意外情况导致日志不完整，redis提供了看redis-check-aof工具、可以修复日志</p>
+<p>3、由于AOF文件只能追加、不能改写，文件便会随着时间的增长越来越大，因此，redis提供了AOF文件重写（rewrite）机制，当AOF文件大小超过配置的值时，redis便会压缩AOF文件，只保留可以恢复数据的指令。比如100个incr命令，合并成一条set指令，既能保证性能，也能压缩文件大小。<strong>如果你直接执行BGREWRITEAOF命令，那么redis会生成一个全新的AOF文件，其中便包括了可以恢复现有数据的最少的命令集。</strong></p>
+<p>4、AOF持久化过程中也会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p>
+<p>5、如果AOF文件出现了问题，redis并不会贸然加载这个有问题的AOF文件，而是报错退出。这时可以通过以下步骤来修复出错的文件：</p>
+<p>1.备份被写坏的AOF文件<br>2.运行redis-check-aof –fix进行修复<br>3.用diff -u来看下两个文件的差异，确认问题点<br>4.重启redis，加载修复后的AOF文件</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>到底是使用RDB还是AOF，Redis显然更高效，但是AOF显然可以更可靠的保证数据的完整性。至于选择RDB还是AOF，官方建议是两者同时用，这样可以最高能力保证数据的可靠性。</p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>String字符串类型详解（上）</title>
+    <url>/2021/05/14/Redis/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
+    <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><h5 id="String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"><a href="#String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。" class="headerlink" title="String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"></a><u>String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。</u></h5><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><h5 id="Set和Get：写值和取值"><a href="#Set和Get：写值和取值" class="headerlink" title="Set和Get：写值和取值"></a>Set和Get：写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\language_env\redis&gt;redis-cli.exe</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="EXISTS：检测key是否存在"><a href="#EXISTS：检测key是否存在" class="headerlink" title="EXISTS：检测key是否存在"></a>EXISTS：检测key是否存在</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; EXISTS k1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="mset和mget：批量写值和取值"><a href="#mset和mget：批量写值和取值" class="headerlink" title="mset和mget：批量写值和取值"></a>mset和mget：批量写值和取值</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset k1 v1 k2 v2 k3 v3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k2</span><br><span class="line">1) &quot;v2&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="keys：查看所有key"><a href="#keys：查看所有key" class="headerlink" title="keys：查看所有key"></a>keys：查看所有key</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;k2&quot;</span><br><span class="line">2) &quot;k3&quot;</span><br><span class="line">3) &quot;k1&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="flushall：清除所有key"><a href="#flushall：清除所有key" class="headerlink" title="flushall：清除所有key"></a>flushall：清除所有key</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; flushall</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br></pre></td></tr></table></figure>
+<h4 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h4><h5 id="strlen-获取字符串长度"><a href="#strlen-获取字符串长度" class="headerlink" title="strlen:获取字符串长度"></a>strlen:获取字符串长度</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; strlen k1</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="substr：截取字符串"><a href="#substr：截取字符串" class="headerlink" title="substr：截取字符串"></a>substr：截取字符串</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; substr k1 1 2</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="append：追加字符串append"><a href="#append：追加字符串append" class="headerlink" title="append：追加字符串append"></a>append：追加字符串append</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; append k1 ,hello</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1,hello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="incr和decr：增加1和减少1"><a href="#incr和decr：增加1和减少1" class="headerlink" title="incr和decr：增加1和减少1"></a>incr和decr：增加1和减少1</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set age 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; incr age</span><br><span class="line">(integer) 13</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;13&quot;</span><br><span class="line">127.0.0.1:6379&gt; decr age</span><br><span class="line">(integer) 12</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;12&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="incrby和decrby：增加n和减少n"><a href="#incrby和decrby：增加n和减少n" class="headerlink" title="incrby和decrby：增加n和减少n"></a>incrby和decrby：增加n和减少n</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; incrby age 20</span><br><span class="line">(integer) 32</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;32&quot;</span><br><span class="line">127.0.0.1:6379&gt; decrby age 10</span><br><span class="line">(integer) 22</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;22&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2"><a href="#expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2" class="headerlink" title="expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2"></a>expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; expire age 10 #设置为10秒</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩5秒</span><br><span class="line">(integer) 5</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩3秒</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩2秒</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩1秒</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩0秒</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #key已过期，也就是key已经不存在了，则返回-2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="高阶操作"><a href="#高阶操作" class="headerlink" title="高阶操作"></a>高阶操作</h4><h5 id="怎么存储对象？"><a href="#怎么存储对象？" class="headerlink" title="怎么存储对象？"></a>怎么存储对象？</h5><p>第一种：不推荐，存值取值都需要json操作</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set user:1 &#123;name:xiaoming,age:12&#125;</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get user:1</span><br><span class="line">&quot;&#123;name:xiaoming,age:12&#125;&quot;</span><br></pre></td></tr></table></figure>
+<p>第二种：推荐，可以直接取想要用的字段，并且redis足以承受此种方法的性能压力，不用担心key太多</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset user:1:name xiaoming user:1:age 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget user:1:name user:1:age</span><br><span class="line">1) &quot;xiaoming&quot;</span><br><span class="line">2) &quot;12&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>windows家庭中文版安装Hyper-V</title>
+    <url>/2021/03/30/Windows/windows%E5%AE%B6%E5%BA%AD%E4%B8%AD%E6%96%87%E7%89%88%E5%AE%89%E8%A3%85Hyper-V/</url>
+    <content><![CDATA[<p>1，新建记事本，放入一下代码，保存为Hyper-V.txt</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pushd &quot;%~dp0&quot;</span><br><span class="line"></span><br><span class="line">dir &#x2F;b %SystemRoot%\servicing\Packages\*Hyper-V*.mum &gt;hyper-v.txt</span><br><span class="line"></span><br><span class="line">for &#x2F;f %%i in (&#39;findstr &#x2F;i . hyper-v.txt 2^&gt;nul&#39;) do dism &#x2F;online &#x2F;norestart &#x2F;add-package:&quot;%SystemRoot%\servicing\Packages\%%i&quot;</span><br><span class="line"></span><br><span class="line">del hyper-v.txt</span><br><span class="line"></span><br><span class="line">Dism &#x2F;online &#x2F;enable-feature &#x2F;featurename:Microsoft-Hyper-V-All &#x2F;LimitAccess &#x2F;ALL</span><br></pre></td></tr></table></figure>
+<p>2，修改后缀名为cmd</p>
+<p>3，以管理员身份运行Hyper-V.cmd</p>
+<p>4，等待运行结束后，输入y，电脑会自动重启</p>
+<p>5，电脑重启后，在开始的菜单栏里找到“Windows 管理工具—&gt;Hyper-V 管理器”</p>
+]]></content>
+      <categories>
+        <category>Windows</category>
+      </categories>
+      <tags>
+        <tag>Windows</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>rand()查询效率问题解决</title>
-    <url>/2020/07/17/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <url>/2020/07/17/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
 <p>这是最基本的rand（）用法。</p>
 <h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
@@ -220,32 +259,15 @@
 <h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
 ]]></content>
       <categories>
-        <category>mysql</category>
+        <category>Mysql</category>
       </categories>
       <tags>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>windows家庭中文版安装Hyper-V</title>
-    <url>/2021/03/30/windows%E5%AE%B6%E5%BA%AD%E4%B8%AD%E6%96%87%E7%89%88%E5%AE%89%E8%A3%85Hyper-V/</url>
-    <content><![CDATA[<p>1，新建记事本，放入一下代码，保存为Hyper-V.txt</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pushd &quot;%~dp0&quot;</span><br><span class="line"></span><br><span class="line">dir &#x2F;b %SystemRoot%\servicing\Packages\*Hyper-V*.mum &gt;hyper-v.txt</span><br><span class="line"></span><br><span class="line">for &#x2F;f %%i in (&#39;findstr &#x2F;i . hyper-v.txt 2^&gt;nul&#39;) do dism &#x2F;online &#x2F;norestart &#x2F;add-package:&quot;%SystemRoot%\servicing\Packages\%%i&quot;</span><br><span class="line"></span><br><span class="line">del hyper-v.txt</span><br><span class="line"></span><br><span class="line">Dism &#x2F;online &#x2F;enable-feature &#x2F;featurename:Microsoft-Hyper-V-All &#x2F;LimitAccess &#x2F;ALL</span><br></pre></td></tr></table></figure>
-<p>2，修改后缀名为cmd</p>
-<p>3，以管理员身份运行Hyper-V.cmd</p>
-<p>4，等待运行结束后，输入y，电脑会自动重启</p>
-<p>5，电脑重启后，在开始的菜单栏里找到“Windows 管理工具—&gt;Hyper-V 管理器”</p>
-]]></content>
-      <categories>
-        <category>windows</category>
-      </categories>
-      <tags>
-        <tag>windows</tag>
+        <tag>Mysql</tag>
       </tags>
   </entry>
   <entry>
     <title>禁止底层滚动</title>
-    <url>/2021/03/30/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/</url>
+    <url>/2021/03/30/MiniProgram/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/</url>
     <content><![CDATA[<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">myCatchTouch:function(e)&#123;</span><br><span class="line"></span><br><span class="line"> return;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>微信小程序</category>
@@ -255,8 +277,25 @@
       </tags>
   </entry>
   <entry>
+    <title>设计模式之单例模式</title>
+    <url>/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
+<p>2.可以提升系统的性能</p>
+<p>3.提供了唯一实例的受控访问，方便后期维护</p>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>设计模式之工厂模式</title>
-    <url>/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
+    <url>/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="工厂模式的优点"><a href="#工厂模式的优点" class="headerlink" title="工厂模式的优点"></a>工厂模式的优点</h3><p>1、解耦。可以将对象的创建和使用分离。</p>
 <p>2、可以降低代码重复率。</p>
 <h4 id="简单工厂："><a href="#简单工厂：" class="headerlink" title="简单工厂："></a>简单工厂：</h4><p>通过一个工厂类创建出不同的对象，但是如果需要增加新的对象，就需要修改工厂类，违背开闭设计原则。</p>
@@ -279,25 +318,8 @@
       </tags>
   </entry>
   <entry>
-    <title>设计模式之单例模式</title>
-    <url>/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
-<p>2.可以提升系统的性能</p>
-<p>3.提供了唯一实例的受控访问，方便后期维护</p>
-<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>谷歌跨域设置</title>
-    <url>/2021/06/07/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/</url>
+    <url>/2021/06/07/Google/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/</url>
     <content><![CDATA[<p>在“谷歌快捷方式—&gt;目标”后增加</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">--disable-web-security --user-data-dir&#x3D;C:\chromedata</span><br></pre></td></tr></table></figure>
 <p>前边的空格不要忽略了；</p>
@@ -314,7 +336,7 @@
   </entry>
   <entry>
     <title>重启后共享文件夹消失问题</title>
-    <url>/2021/04/02/%E9%87%8D%E5%90%AF%E5%90%8E%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98/</url>
+    <url>/2021/04/02/Vmware%20Tool/%E9%87%8D%E5%90%AF%E5%90%8E%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<p>简单粗暴的解决办法，用以下命令新建一个共享目录（暂时还没有发现更好用的处理方法）</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.创建文件夹</span><br><span class="line">mkdir &#x2F;mnt&#x2F;win</span><br><span class="line">2.把共享文件挂载到&#x2F;mnt&#x2F;win这个目录</span><br><span class="line">&#x2F;usr&#x2F;bin&#x2F;vmhgfs-fuse .host:&#x2F; &#x2F;mnt&#x2F;win -o subtype&#x3D;vmhgfs-fuse,allow_other</span><br></pre></td></tr></table></figure>
 
@@ -326,28 +348,6 @@
       </categories>
       <tags>
         <tag>虚拟机</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>自定义composer包步骤</title>
-    <url>/2021/08/06/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/</url>
-    <content><![CDATA[<p>第一步，创建git仓库，把仓库clone到本地</p>
-<p>第二步，进入本地仓库文件夹，执行composer init</p>
-<p>第三步，根据命令行提示，填写基本信息，如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#填写作者信息</span><br><span class="line">Author [zousi &lt;3056953305@qq.com&gt;, n to skip]: zousi &lt;3056953305@qq.com&gt;</span><br><span class="line">#定义包的稳定性，可用的稳定性标识（按字母排序）：dev、alpha、beta、RC、stable</span><br><span class="line">Minimum Stability []: dev</span><br><span class="line">#选择包类型</span><br><span class="line">Package Type (e.g. library, project, metapackage, composer-plugin) []: library</span><br><span class="line">#自定义许可证</span><br><span class="line">License []:</span><br><span class="line">#定义包需要的依赖</span><br><span class="line">Define your dependencies.</span><br><span class="line"></span><br><span class="line">Would you like to define your dependencies (require) interactively [yes]?</span><br><span class="line">#搜索需要的包</span><br><span class="line">Search for a package:</span><br><span class="line">#第二次确认</span><br><span class="line">Would you like to define your dev dependencies (require-dev) interactively [yes]?</span><br><span class="line">Search for a package:</span><br><span class="line">#确认json文件的基本信息</span><br><span class="line">&#123;</span><br><span class="line">    &quot;name&quot;: &quot;hsx9712&#x2F;composer_init&quot;,</span><br><span class="line">    &quot;description&quot;: &quot;composer_init&quot;,</span><br><span class="line">    &quot;type&quot;: &quot;library&quot;,</span><br><span class="line">    &quot;authors&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;zousi&quot;,</span><br><span class="line">            &quot;email&quot;: &quot;3056953305@qq.com&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;minimum-stability&quot;: &quot;dev&quot;,</span><br><span class="line">    &quot;require&quot;: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">#是否确认生成</span><br><span class="line">Do you confirm generation [yes]? yes</span><br><span class="line">#是否把vendor文件夹放到.gitignore文件中</span><br><span class="line">Would you like the vendor directory added to your .gitignore [yes]? yes</span><br></pre></td></tr></table></figure>
-<p>创建完成。</p>
-<p>第四步、提交到git远程仓库</p>
-<p>第五步，复制git地址</p>
-<p>第六步、打开<a href="https://packagist.org/%EF%BC%8C%E5%A6%82%E6%9E%9C%E6%B2%A1%E6%9C%89%E8%B4%A6%E5%8F%B7%EF%BC%8C%E5%85%88%E5%88%9B%E5%BB%BA%E8%B4%A6%E5%8F%B7">https://packagist.org/，如果没有账号，先创建账号</a></p>
-<p>第七步、登录后点右上方的Submit按钮</p>
-<p>第八步、在输入框粘贴git地址，并提交</p>
-<p>完成</p>
-]]></content>
-      <categories>
-        <category>Composer</category>
-      </categories>
-      <tags>
-        <tag>Composer</tag>
       </tags>
   </entry>
 </search>

@@ -18,8 +18,8 @@
   
   <entry>
     <title>自定义composer包步骤</title>
-    <link href="https://hxs9712.github.io/2021/08/06/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/"/>
-    <id>https://hxs9712.github.io/2021/08/06/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/</id>
+    <link href="https://hxs9712.github.io/2021/08/06/Composer/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/"/>
+    <id>https://hxs9712.github.io/2021/08/06/Composer/%E8%87%AA%E5%AE%9A%E4%B9%89composer%E5%8C%85/</id>
     <published>2021-08-06T08:35:07.201Z</published>
     <updated>2021-08-06T08:49:32.557Z</updated>
     
@@ -45,10 +45,10 @@
   
   <entry>
     <title>Redis持久化</title>
-    <link href="https://hxs9712.github.io/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/"/>
-    <id>https://hxs9712.github.io/2021/08/06/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</id>
+    <link href="https://hxs9712.github.io/2021/08/06/Redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96/"/>
+    <id>https://hxs9712.github.io/2021/08/06/Redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</id>
     <published>2021-08-06T04:06:58.195Z</published>
-    <updated>2021-08-06T04:10:45.018Z</updated>
+    <updated>2021-08-10T01:53:37.321Z</updated>
     
     <content type="html"><![CDATA[<h4 id="Redis持久化"><a href="#Redis持久化" class="headerlink" title="Redis持久化"></a>Redis持久化</h4><p>redis为了防止宕机、停电等意外情况导致的数据丢失，便有了持久化的解决方案，具体有两种方式，RDB持久化和AOF持久化。</p><h4 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h4><p>RDB，全称Redis database，也就是redis数据库，顾名思义，这种持久化方式主要是以存储数据为主。简单来说，就是在一定时间内，进行了多少次操作，比如在15分钟内，进行了1000次操作，便将数据生成快照并存储到磁盘上，文件名默认为dump.rdb，恢复数据的时候就从磁盘上读出来。</p><h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><p>AOF，全称Append Only File，只能追加并且不可以改写的文件，只因为这个文件里存储的都是命令。简单来说，AOF就是每隔一定时间把命令存储到文件里，文件名默认为appendonly.aof，等到需要恢复数据的时候就重新执行一遍文件中的所有命令。</p><h4 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h4><h5 id="RDB持久化方式分析"><a href="#RDB持久化方式分析" class="headerlink" title="RDB持久化方式分析"></a>RDB持久化方式分析</h5><p>1、RDB方式是将一段时间段内的数据快照持久化到磁盘中</p><p>2、RDB持久化过程中会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p><p>3、RDB持久化时，Redis会单独fork一个子进程来处理，而主进程不需要进行任何IO操作，从而保证了Redis的高性能</p><p>4、RDB是每隔一段时间执行一次，这样的话就可能会造成数据丢失，比如每隔五分钟持久化一次，那就有可能丢失五分钟的数据，如果对数据的完整性不太重视，则适合用RDB这种持久化方式，因为它比AOF要高效</p><h5 id="AOF持久化方式分析"><a href="#AOF持久化方式分析" class="headerlink" title="AOF持久化方式分析"></a>AOF持久化方式分析</h5><p>1、AOF持久化策略是每秒钟执行一次，把指令记录到磁盘中，即使发生了宕机、停电等意外情况，也只会丢失1秒（官方说1秒，其实是要比1秒多的，）的数据，并且如果硬盘IO慢，会阻塞父进程</p><p>2、如果追加日志时，磁盘满了，或者其它意外情况导致日志不完整，redis提供了看redis-check-aof工具、可以修复日志</p><p>3、由于AOF文件只能追加、不能改写，文件便会随着时间的增长越来越大，因此，redis提供了AOF文件重写（rewrite）机制，当AOF文件大小超过配置的值时，redis便会压缩AOF文件，只保留可以恢复数据的指令。比如100个incr命令，合并成一条set指令，既能保证性能，也能压缩文件大小。<strong>如果你直接执行BGREWRITEAOF命令，那么redis会生成一个全新的AOF文件，其中便包括了可以恢复现有数据的最少的命令集。</strong></p><p>4、AOF持久化过程中也会先将数据存入到一个临时文件中，等快存完了，再用临时文件替换之前的持久化文件、以保证持久化文件完整性和可用性</p><p>5、如果AOF文件出现了问题，redis并不会贸然加载这个有问题的AOF文件，而是报错退出。这时可以通过以下步骤来修复出错的文件：</p><p>1.备份被写坏的AOF文件<br>2.运行redis-check-aof –fix进行修复<br>3.用diff -u来看下两个文件的差异，确认问题点<br>4.重启redis，加载修复后的AOF文件</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>到底是使用RDB还是AOF，Redis显然更高效，但是AOF显然可以更可靠的保证数据的完整性。至于选择RDB还是AOF，官方建议是两者同时用，这样可以最高能力保证数据的可靠性。</p>]]></content>
     
@@ -60,17 +60,17 @@
     
     
     
-    <category term="redis" scheme="https://hxs9712.github.io/categories/redis/"/>
+    <category term="Redis" scheme="https://hxs9712.github.io/categories/Redis/"/>
     
     
-    <category term="redis" scheme="https://hxs9712.github.io/tags/redis/"/>
+    <category term="Redis" scheme="https://hxs9712.github.io/tags/Redis/"/>
     
   </entry>
   
   <entry>
     <title>谷歌跨域设置</title>
-    <link href="https://hxs9712.github.io/2021/06/07/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/"/>
-    <id>https://hxs9712.github.io/2021/06/07/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/</id>
+    <link href="https://hxs9712.github.io/2021/06/07/Google/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/"/>
+    <id>https://hxs9712.github.io/2021/06/07/Google/%E8%B0%B7%E6%AD%8C%E8%B7%A8%E5%9F%9F%E8%AE%BE%E7%BD%AE/</id>
     <published>2021-06-07T10:09:53.977Z</published>
     <updated>2021-06-07T10:12:11.721Z</updated>
     
@@ -94,10 +94,10 @@
   
   <entry>
     <title>String字符串类型详解（下）</title>
-    <link href="https://hxs9712.github.io/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/"/>
-    <id>https://hxs9712.github.io/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</id>
+    <link href="https://hxs9712.github.io/2021/05/14/Redis/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/"/>
+    <id>https://hxs9712.github.io/2021/05/14/Redis/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8B%EF%BC%89/</id>
     <published>2021-05-14T04:06:18.237Z</published>
-    <updated>2021-05-14T04:33:59.080Z</updated>
+    <updated>2021-08-10T01:53:48.645Z</updated>
     
     <content type="html"><![CDATA[<h4 id="隐藏技巧"><a href="#隐藏技巧" class="headerlink" title="隐藏技巧"></a>隐藏技巧</h4><h5 id="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"><a href="#SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；" class="headerlink" title="SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；"></a>SETRANGE：替换字符串；GETRANGE：获取指定位置字符串；</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1,hello</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; setrange k1 2 ww</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange k1 2 7</span><br><span class="line">&quot;wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="SETEX：设置过期时间"><a href="#SETEX：设置过期时间" class="headerlink" title="SETEX：设置过期时间"></a>SETEX：设置过期时间</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setex k2 5 v2 #设置过期时间为5秒</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl k2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"><a href="#SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功" class="headerlink" title="SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功"></a>SETNX：如果不存在则设置新值，如果存在则不生效；返回0为存在，1为设置成功</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1 #以为k1是存在的，所以返回0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx k3 v3 #以为k3是不存在的，所以返回1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1      #此处可以发现k1依然为旧值</span><br><span class="line">&quot;v1wwello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><p>综合上篇总结，基本上就是Redis中能处理String字符串的所有方法了，有90%的程序员只会set，get，会用了这些，你就是那10%；</p>]]></content>
     
@@ -109,19 +109,19 @@
     
     
     
-    <category term="redis" scheme="https://hxs9712.github.io/categories/redis/"/>
+    <category term="Redis" scheme="https://hxs9712.github.io/categories/Redis/"/>
     
     
-    <category term="redis" scheme="https://hxs9712.github.io/tags/redis/"/>
+    <category term="Redis" scheme="https://hxs9712.github.io/tags/Redis/"/>
     
   </entry>
   
   <entry>
     <title>String字符串类型详解（上）</title>
-    <link href="https://hxs9712.github.io/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/"/>
-    <id>https://hxs9712.github.io/2021/05/14/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/</id>
+    <link href="https://hxs9712.github.io/2021/05/14/Redis/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/"/>
+    <id>https://hxs9712.github.io/2021/05/14/Redis/String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3%EF%BC%88%E4%B8%8A%EF%BC%89/</id>
     <published>2021-05-14T04:06:18.228Z</published>
-    <updated>2021-05-14T04:33:46.244Z</updated>
+    <updated>2021-08-10T01:53:43.465Z</updated>
     
     <content type="html"><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><h5 id="String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"><a href="#String字符串类型是Redis中经常用到的类型，但是90-的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。" class="headerlink" title="String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。"></a><u>String字符串类型是Redis中经常用到的类型，但是90%的程序员基本上都只会set、get，本篇文章就详细讲解一下String字符串的一些基本用法、进阶用法、高阶用法和一些隐藏技巧，希望对大家有用。</u></h5><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><h5 id="Set和Get：写值和取值"><a href="#Set和Get：写值和取值" class="headerlink" title="Set和Get：写值和取值"></a>Set和Get：写值和取值</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">D:\language_env\redis&gt;redis-cli.exe</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="EXISTS：检测key是否存在"><a href="#EXISTS：检测key是否存在" class="headerlink" title="EXISTS：检测key是否存在"></a>EXISTS：检测key是否存在</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; EXISTS k1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="mset和mget：批量写值和取值"><a href="#mset和mget：批量写值和取值" class="headerlink" title="mset和mget：批量写值和取值"></a>mset和mget：批量写值和取值</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset k1 v1 k2 v2 k3 v3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k2</span><br><span class="line">1) &quot;v2&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="keys：查看所有key"><a href="#keys：查看所有key" class="headerlink" title="keys：查看所有key"></a>keys：查看所有key</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;k2&quot;</span><br><span class="line">2) &quot;k3&quot;</span><br><span class="line">3) &quot;k1&quot;</span><br></pre></td></tr></table></figure><h5 id="flushall：清除所有key"><a href="#flushall：清除所有key" class="headerlink" title="flushall：清除所有key"></a>flushall：清除所有key</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; flushall</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br></pre></td></tr></table></figure><h4 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h4><h5 id="strlen-获取字符串长度"><a href="#strlen-获取字符串长度" class="headerlink" title="strlen:获取字符串长度"></a>strlen:获取字符串长度</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; strlen k1</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="substr：截取字符串"><a href="#substr：截取字符串" class="headerlink" title="substr：截取字符串"></a>substr：截取字符串</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; substr k1 1 2</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="append：追加字符串append"><a href="#append：追加字符串append" class="headerlink" title="append：追加字符串append"></a>append：追加字符串append</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; append k1 ,hello</span><br><span class="line">(integer) 8</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1,hello&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="incr和decr：增加1和减少1"><a href="#incr和decr：增加1和减少1" class="headerlink" title="incr和decr：增加1和减少1"></a>incr和decr：增加1和减少1</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set age 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; incr age</span><br><span class="line">(integer) 13</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;13&quot;</span><br><span class="line">127.0.0.1:6379&gt; decr age</span><br><span class="line">(integer) 12</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;12&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="incrby和decrby：增加n和减少n"><a href="#incrby和decrby：增加n和减少n" class="headerlink" title="incrby和decrby：增加n和减少n"></a>incrby和decrby：增加n和减少n</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; incrby age 20</span><br><span class="line">(integer) 32</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;32&quot;</span><br><span class="line">127.0.0.1:6379&gt; decrby age 10</span><br><span class="line">(integer) 22</span><br><span class="line">127.0.0.1:6379&gt; get age</span><br><span class="line">&quot;22&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h5 id="expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2"><a href="#expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2" class="headerlink" title="expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2"></a>expire：设置过期时间；ttl：查看key剩余时间，如不存在则返回-2</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; expire age 10 #设置为10秒</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩5秒</span><br><span class="line">(integer) 5</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩3秒</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩2秒</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩1秒</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #还剩0秒</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; ttl age  #key已过期，也就是key已经不存在了，则返回-2</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><h4 id="高阶操作"><a href="#高阶操作" class="headerlink" title="高阶操作"></a>高阶操作</h4><h5 id="怎么存储对象？"><a href="#怎么存储对象？" class="headerlink" title="怎么存储对象？"></a>怎么存储对象？</h5><p>第一种：不推荐，存值取值都需要json操作</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set user:1 &#123;name:xiaoming,age:12&#125;</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get user:1</span><br><span class="line">&quot;&#123;name:xiaoming,age:12&#125;&quot;</span><br></pre></td></tr></table></figure><p>第二种：推荐，可以直接取想要用的字段，并且redis足以承受此种方法的性能压力，不用担心key太多</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; mset user:1:name xiaoming user:1:age 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget user:1:name user:1:age</span><br><span class="line">1) &quot;xiaoming&quot;</span><br><span class="line">2) &quot;12&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>]]></content>
     
@@ -133,17 +133,17 @@
     
     
     
-    <category term="redis" scheme="https://hxs9712.github.io/categories/redis/"/>
+    <category term="Redis" scheme="https://hxs9712.github.io/categories/Redis/"/>
     
     
-    <category term="redis" scheme="https://hxs9712.github.io/tags/redis/"/>
+    <category term="Redis" scheme="https://hxs9712.github.io/tags/Redis/"/>
     
   </entry>
   
   <entry>
     <title>重启后共享文件夹消失问题</title>
-    <link href="https://hxs9712.github.io/2021/04/02/%E9%87%8D%E5%90%AF%E5%90%8E%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98/"/>
-    <id>https://hxs9712.github.io/2021/04/02/%E9%87%8D%E5%90%AF%E5%90%8E%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98/</id>
+    <link href="https://hxs9712.github.io/2021/04/02/Vmware%20Tool/%E9%87%8D%E5%90%AF%E5%90%8E%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98/"/>
+    <id>https://hxs9712.github.io/2021/04/02/Vmware%20Tool/%E9%87%8D%E5%90%AF%E5%90%8E%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98/</id>
     <published>2021-04-02T07:18:38.934Z</published>
     <updated>2021-04-02T07:23:12.340Z</updated>
     
@@ -167,8 +167,8 @@
   
   <entry>
     <title>禁止底层滚动</title>
-    <link href="https://hxs9712.github.io/2021/03/30/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/"/>
-    <id>https://hxs9712.github.io/2021/03/30/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/</id>
+    <link href="https://hxs9712.github.io/2021/03/30/MiniProgram/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/"/>
+    <id>https://hxs9712.github.io/2021/03/30/MiniProgram/%E7%A6%81%E6%AD%A2%E5%BA%95%E5%B1%82%E6%BB%9A%E5%8A%A8/</id>
     <published>2021-03-30T11:01:55.264Z</published>
     <updated>2021-03-30T11:01:55.265Z</updated>
     
@@ -191,10 +191,10 @@
   
   <entry>
     <title>windows家庭中文版安装Hyper-V</title>
-    <link href="https://hxs9712.github.io/2021/03/30/windows%E5%AE%B6%E5%BA%AD%E4%B8%AD%E6%96%87%E7%89%88%E5%AE%89%E8%A3%85Hyper-V/"/>
-    <id>https://hxs9712.github.io/2021/03/30/windows%E5%AE%B6%E5%BA%AD%E4%B8%AD%E6%96%87%E7%89%88%E5%AE%89%E8%A3%85Hyper-V/</id>
+    <link href="https://hxs9712.github.io/2021/03/30/Windows/windows%E5%AE%B6%E5%BA%AD%E4%B8%AD%E6%96%87%E7%89%88%E5%AE%89%E8%A3%85Hyper-V/"/>
+    <id>https://hxs9712.github.io/2021/03/30/Windows/windows%E5%AE%B6%E5%BA%AD%E4%B8%AD%E6%96%87%E7%89%88%E5%AE%89%E8%A3%85Hyper-V/</id>
     <published>2021-03-30T10:50:07.431Z</published>
-    <updated>2021-03-30T10:50:07.432Z</updated>
+    <updated>2021-08-10T01:55:22.757Z</updated>
     
     <content type="html"><![CDATA[<p>1，新建记事本，放入一下代码，保存为Hyper-V.txt</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pushd &quot;%~dp0&quot;</span><br><span class="line"></span><br><span class="line">dir &#x2F;b %SystemRoot%\servicing\Packages\*Hyper-V*.mum &gt;hyper-v.txt</span><br><span class="line"></span><br><span class="line">for &#x2F;f %%i in (&#39;findstr &#x2F;i . hyper-v.txt 2^&gt;nul&#39;) do dism &#x2F;online &#x2F;norestart &#x2F;add-package:&quot;%SystemRoot%\servicing\Packages\%%i&quot;</span><br><span class="line"></span><br><span class="line">del hyper-v.txt</span><br><span class="line"></span><br><span class="line">Dism &#x2F;online &#x2F;enable-feature &#x2F;featurename:Microsoft-Hyper-V-All &#x2F;LimitAccess &#x2F;ALL</span><br></pre></td></tr></table></figure><p>2，修改后缀名为cmd</p><p>3，以管理员身份运行Hyper-V.cmd</p><p>4，等待运行结束后，输入y，电脑会自动重启</p><p>5，电脑重启后，在开始的菜单栏里找到“Windows 管理工具—&gt;Hyper-V 管理器”</p>]]></content>
     
@@ -207,17 +207,17 @@
     
     
     
-    <category term="windows" scheme="https://hxs9712.github.io/categories/windows/"/>
+    <category term="Windows" scheme="https://hxs9712.github.io/categories/Windows/"/>
     
     
-    <category term="windows" scheme="https://hxs9712.github.io/tags/windows/"/>
+    <category term="Windows" scheme="https://hxs9712.github.io/tags/Windows/"/>
     
   </entry>
   
   <entry>
     <title>nginx反向代理session失效问题解决</title>
-    <link href="https://hxs9712.github.io/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
-    <id>https://hxs9712.github.io/2021/03/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
+    <link href="https://hxs9712.github.io/2021/03/22/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>https://hxs9712.github.io/2021/03/22/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86session%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
     <published>2021-03-22T08:49:58.752Z</published>
     <updated>2021-03-22T08:49:58.752Z</updated>
     
@@ -240,8 +240,8 @@
   
   <entry>
     <title>nginx反向代理</title>
-    <link href="https://hxs9712.github.io/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/"/>
-    <id>https://hxs9712.github.io/2021/01/22/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</id>
+    <link href="https://hxs9712.github.io/2021/01/22/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/"/>
+    <id>https://hxs9712.github.io/2021/01/22/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/</id>
     <published>2021-01-22T10:34:06.760Z</published>
     <updated>2021-01-22T10:34:06.760Z</updated>
     
@@ -264,8 +264,8 @@
   
   <entry>
     <title>nginx反向代理--实际应用场景之动静分离（解决跨域问题）</title>
-    <link href="https://hxs9712.github.io/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/"/>
-    <id>https://hxs9712.github.io/2021/01/13/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/</id>
+    <link href="https://hxs9712.github.io/2021/01/13/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/"/>
+    <id>https://hxs9712.github.io/2021/01/13/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/</id>
     <published>2021-01-13T10:05:26.403Z</published>
     <updated>2021-01-14T04:01:37.771Z</updated>
     
@@ -288,10 +288,10 @@
   
   <entry>
     <title>rand()查询效率问题解决</title>
-    <link href="https://hxs9712.github.io/2020/07/17/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
-    <id>https://hxs9712.github.io/2020/07/17/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
+    <link href="https://hxs9712.github.io/2020/07/17/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>https://hxs9712.github.io/2020/07/17/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
     <published>2020-07-17T08:10:17.000Z</published>
-    <updated>2021-08-06T10:11:04.406Z</updated>
+    <updated>2021-08-10T01:52:04.464Z</updated>
     
     <content type="html"><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p><p>这是最基本的rand（）用法。</p><h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p><p>select * from card order by rand() limit 1;</p><p>这条语句竟然用了23秒多（我的机子性能还算可以的了），这实在令人崩溃。后来去看了mysql官方手册，里边意思是在order by 从句中使用rand（）时，会导致数据列被多此扫描，所以效率会极低。</p><h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>后来在某社区发现了一个有趣的写法，先查出来表中最大的id，再查出来表中最小的id，然后两个id加起来，再用rand（）函数乘以加以来的结果，用floor函数向下取整，取出id大于这个这个整数的数据，用时0.002秒，跟之前那种写法简直是天壤之别。</p><p>SELECT * FROM <code>card</code><br>WHERE card_id &gt;= (SELECT FLOOR( RAND() *((SELECT MAX(card_id) FROM <code>card</code>)-(SELECT MIN(card_id) FROM <code>card</code>)) + (SELECT MIN(card_id) FROM <code>card</code>)))  ORDER BY card_id DESC;</p><h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>]]></content>
     
@@ -303,17 +303,17 @@
     
     
     
-    <category term="mysql" scheme="https://hxs9712.github.io/categories/mysql/"/>
+    <category term="Mysql" scheme="https://hxs9712.github.io/categories/Mysql/"/>
     
     
-    <category term="mysql" scheme="https://hxs9712.github.io/tags/mysql/"/>
+    <category term="Mysql" scheme="https://hxs9712.github.io/tags/Mysql/"/>
     
   </entry>
   
   <entry>
     <title>composer内存溢出问题解决</title>
-    <link href="https://hxs9712.github.io/2020/04/19/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
-    <id>https://hxs9712.github.io/2020/04/19/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
+    <link href="https://hxs9712.github.io/2020/04/19/Composer/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>https://hxs9712.github.io/2020/04/19/Composer/composer%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</id>
     <published>2020-04-19T07:57:06.000Z</published>
     <updated>2021-08-06T10:12:46.703Z</updated>
     
@@ -338,8 +338,8 @@
   
   <entry>
     <title>nginx负载均衡</title>
-    <link href="https://hxs9712.github.io/2020/04/19/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
-    <id>https://hxs9712.github.io/2020/04/19/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</id>
+    <link href="https://hxs9712.github.io/2020/04/19/Nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
+    <id>https://hxs9712.github.io/2020/04/19/Nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</id>
     <published>2020-04-19T07:57:06.000Z</published>
     <updated>2021-08-06T10:14:28.317Z</updated>
     
@@ -362,8 +362,8 @@
   
   <entry>
     <title>设计模式之工厂模式</title>
-    <link href="https://hxs9712.github.io/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://hxs9712.github.io/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
+    <link href="https://hxs9712.github.io/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://hxs9712.github.io/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
     <published>2019-03-05T10:00:00.000Z</published>
     <updated>2021-08-06T10:04:48.606Z</updated>
     
@@ -388,8 +388,8 @@
   
   <entry>
     <title>设计模式之单例模式</title>
-    <link href="https://hxs9712.github.io/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://hxs9712.github.io/2019/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</id>
+    <link href="https://hxs9712.github.io/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://hxs9712.github.io/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</id>
     <published>2019-03-05T07:22:14.000Z</published>
     <updated>2021-08-06T10:07:27.950Z</updated>
     
