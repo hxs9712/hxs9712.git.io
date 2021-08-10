@@ -347,7 +347,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Set集合类型详解</title>
+    <title>有序集合类型详解</title>
     <url>/2020/05/17/Redis/%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/</url>
     <content><![CDATA[<h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><p>Redis 有序集合和集合一样也是 string 类型元素的集合,且不允许重复的成员。</p>
 <p>不同的是每个元素都会关联一个 double 类型的分数。redis 正是通过分数来为集合中的成员进行从小到大的排序。</p>

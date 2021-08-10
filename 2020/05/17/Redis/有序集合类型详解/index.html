@@ -98,13 +98,13 @@
 
 <meta name="description" content="内容简介Redis 有序集合和集合一样也是 string 类型元素的集合,且不允许重复的成员。 不同的是每个元素都会关联一个 double 类型的分数。redis 正是通过分数来为集合中的成员进行从小到大的排序。 有序集合的成员是唯一的,但分数(score)却可以重复。  集合中最大的成员数为 232 - 1 (4294967295, 每个集合可存储40多亿个成员)。 命令123456789101">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Set集合类型详解">
+<meta property="og:title" content="有序集合类型详解">
 <meta property="og:url" content="https://hxs9712.github.io/2020/05/17/Redis/%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="All Is Well">
 <meta property="og:description" content="内容简介Redis 有序集合和集合一样也是 string 类型元素的集合,且不允许重复的成员。 不同的是每个元素都会关联一个 double 类型的分数。redis 正是通过分数来为集合中的成员进行从小到大的排序。 有序集合的成员是唯一的,但分数(score)却可以重复。  集合中最大的成员数为 232 - 1 (4294967295, 每个集合可存储40多亿个成员)。 命令123456789101">
 <meta property="og:locale">
 <meta property="article:published_time" content="2020-05-16T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-10T03:40:45.964Z">
+<meta property="article:modified_time" content="2021-08-10T06:25:30.330Z">
 <meta property="article:author" content="破茧化蝶">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -142,7 +142,7 @@
 
 
 
-  <title>Set集合类型详解 | All Is Well</title>
+  <title>有序集合类型详解 | All Is Well</title>
   
 
 
@@ -346,7 +346,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Set集合类型详解</h1>
+          <h1 class="post-title" itemprop="name headline">有序集合类型详解</h1>
         
 
         <div class="post-meta">
