@@ -36,6 +36,23 @@
       </tags>
   </entry>
   <entry>
+    <title>设计模式之单例模式</title>
+    <url>/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
+<p>2.可以提升系统的性能</p>
+<p>3.提供了唯一实例的受控访问，方便后期维护</p>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>设计模式之工厂模式</title>
     <url>/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<h3 id="工厂模式的优点"><a href="#工厂模式的优点" class="headerlink" title="工厂模式的优点"></a>工厂模式的优点</h3><p>1、解耦。可以将对象的创建和使用分离。</p>
@@ -51,23 +68,6 @@
 <h6 id="优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等"><a href="#优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等" class="headerlink" title="优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等"></a>优点：可以新增新的产品类型，比如增加苹果手机、华为手机、小米手机等</h6><h6 id="缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。"><a href="#缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。" class="headerlink" title="缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。"></a>缺点：如果需要增加新的产品，比如电脑，则需要修改工厂类，不符合开闭原则。</h6><p><strong>注意：抽象工厂负责多个产品（生产各种类型的手机，各种类型的口罩等等）</strong></p>
 <p>代码示例：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F;手机</span><br><span class="line">interface Phone&#123;</span><br><span class="line">	public function getPhone($value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class iphone implements Phone</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getPhone($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;iphone&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class huawei implements Phone</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getPhone($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;huawei&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;口罩</span><br><span class="line">interface Mask&#123;</span><br><span class="line">	public function getMask($value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class normal implements Mask</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getMask($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;normal&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class n95 implements Mask</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	function getMask($a)</span><br><span class="line">	&#123;</span><br><span class="line">		echo &quot;n95&quot;.&quot;&lt;br&gt;&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;生产手机和口罩</span><br><span class="line">abstract class FactoryBase&#123;</span><br><span class="line"> 	abstract static function createPhone();</span><br><span class="line"> 	abstract static function createMask();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;A工厂生产苹果手机和n95口罩</span><br><span class="line">class AFactory extends FactoryBase</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">	static function createPhone()</span><br><span class="line">	&#123;</span><br><span class="line">		return new iphone();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	static function createMask()</span><br><span class="line">	&#123;</span><br><span class="line">		return new n95();</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;如果新增了新的产品，比如电脑，则需要在这里创建相应类型的电脑的对象</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;B工厂生产华为手机和普通口罩</span><br><span class="line">class BFactory extends FactoryBase</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">		static function createPhone()</span><br><span class="line">	&#123;</span><br><span class="line">		return new huawei();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	static function createMask()</span><br><span class="line">	&#123;</span><br><span class="line">		return new normal();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$a &#x3D; AFactory::createPhone();</span><br><span class="line">$a-&gt;getPhone(1);</span><br><span class="line">$a2 &#x3D; AFactory::createMask();</span><br><span class="line">$a2-&gt;getMask(1);</span><br><span class="line">$b &#x3D; BFactory::createPhone();</span><br><span class="line">$b-&gt;getPhone(1);</span><br><span class="line">$b &#x3D; BFactory::createMask();</span><br><span class="line">$b-&gt;getMask(1);</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>设计模式之单例模式</title>
-    <url>/2019/03/05/Design%20Mode/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="什么是单例模式"><a href="#什么是单例模式" class="headerlink" title="什么是单例模式"></a>什么是单例模式</h3><p>通过对构造函数__contruct和析构函数__destruct的私有化，从而防止从类的外部通过new创建对象，然后在类的内部来进行实例化，并用静态变量存储到内存中，之后通过判断类是否已经被实例化，如果已经被实例化，则无需再创建对象。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.不需要反复的创建对象实例，可以节省内存消耗</p>
-<p>2.可以提升系统的性能</p>
-<p>3.提供了唯一实例的受控访问，方便后期维护</p>
-<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="built_in">static</span> <span class="variable">$_instance</span>;<span class="comment">//用来存储实例的静态变量</span></span><br><span class="line">	</span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># code...</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment"># 判断是否存在已经实例化过的对象，这样可以保证永远只有一个被实例化过的对象php</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">self</span>::<span class="variable">$_instance</span>) &#123;</span><br><span class="line">            <span class="comment"># 如果没有再次进行实例化</span></span><br><span class="line">                <span class="built_in">self</span>::<span class="variable">$_instance</span> = <span class="keyword">new</span> <span class="built_in">self</span>;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">self</span>::<span class="variable">$_instance</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A::getInstance();<span class="comment">//输出aa</span></span><br><span class="line">A::getInstance();<span class="comment">//无输出</span></span><br></pre></td></tr></table></figure>
-
 ]]></content>
       <categories>
         <category>设计模式</category>
@@ -105,6 +105,25 @@
       </tags>
   </entry>
   <entry>
+    <title>rand()查询效率问题解决</title>
+    <url>/2020/07/17/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
+    <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
+<p>这是最基本的rand（）用法。</p>
+<h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
+<p>select * from card order by rand() limit 1;</p>
+<p>这条语句竟然用了23秒多（我的机子性能还算可以的了），这实在令人崩溃。后来去看了mysql官方手册，里边意思是在order by 从句中使用rand（）时，会导致数据列被多此扫描，所以效率会极低。</p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>后来在某社区发现了一个有趣的写法，先查出来表中最大的id，再查出来表中最小的id，然后两个id加起来，再用rand（）函数乘以加以来的结果，用floor函数向下取整，取出id大于这个这个整数的数据，用时0.002秒，跟之前那种写法简直是天壤之别。</p>
+<p>SELECT * FROM <code>card</code><br>WHERE card_id &gt;= (SELECT FLOOR( RAND() *((SELECT MAX(card_id) FROM <code>card</code>)-(SELECT MIN(card_id) FROM <code>card</code>)) + (SELECT MIN(card_id) FROM <code>card</code>)))  ORDER BY card_id DESC;</p>
+<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
+]]></content>
+      <categories>
+        <category>Mysql</category>
+      </categories>
+      <tags>
+        <tag>Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>nginx反向代理--实际应用场景之动静分离（解决跨域问题）</title>
     <url>/2021/01/13/Nginx/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86--%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B9%8B%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/</url>
     <content><![CDATA[<h3 id="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"><a href="#nginx反向代理–实际应用场景之动静分离（解决跨域问题）" class="headerlink" title="nginx反向代理–实际应用场景之动静分离（解决跨域问题）"></a>nginx反向代理–实际应用场景之动静分离（解决跨域问题）</h3><p>上一节我们熟悉了nginx反向代理的原理和基本配置，这节我们来进阶学习下nginx反向代理的应用场景。</p>
@@ -124,25 +143,6 @@
       </categories>
       <tags>
         <tag>Nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>rand()查询效率问题解决</title>
-    <url>/2020/07/17/Mysql/rand()%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/</url>
-    <content><![CDATA[<h6 id="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"><a href="#随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。" class="headerlink" title="随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。"></a>随机从数据表中取一条数据，我们一般会用到rand（）函数，但是如果用不好的话，rand（）的效率实在太低。</h6><h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>SELECT * FROM tablename ORDER BY RAND() LIMIT 1</p>
-<p>这是最基本的rand（）用法。</p>
-<h3 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h3><p>我再表里加了一千万条测试数据。</p>
-<p>select * from card order by rand() limit 1;</p>
-<p>这条语句竟然用了23秒多（我的机子性能还算可以的了），这实在令人崩溃。后来去看了mysql官方手册，里边意思是在order by 从句中使用rand（）时，会导致数据列被多此扫描，所以效率会极低。</p>
-<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>后来在某社区发现了一个有趣的写法，先查出来表中最大的id，再查出来表中最小的id，然后两个id加起来，再用rand（）函数乘以加以来的结果，用floor函数向下取整，取出id大于这个这个整数的数据，用时0.002秒，跟之前那种写法简直是天壤之别。</p>
-<p>SELECT * FROM <code>card</code><br>WHERE card_id &gt;= (SELECT FLOOR( RAND() *((SELECT MAX(card_id) FROM <code>card</code>)-(SELECT MIN(card_id) FROM <code>card</code>)) + (SELECT MIN(card_id) FROM <code>card</code>)))  ORDER BY card_id DESC;</p>
-<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>这里解释下为什么要用最大值，最小值相加的结果，而不用count函数，因为count算出来的结果不一定比最大的id大，这样的话随机出来的结果就会有瑕疵；</p>
-]]></content>
-      <categories>
-        <category>Mysql</category>
-      </categories>
-      <tags>
-        <tag>Mysql</tag>
       </tags>
   </entry>
   <entry>
