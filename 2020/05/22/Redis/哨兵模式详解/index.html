@@ -78,12 +78,10 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Redis," />
 
 
 
-
-  
 
 
   <link rel="alternate" href="/atom.xml" title="All Is Well" type="application/atom+xml" />
@@ -98,14 +96,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="tags">
-<meta property="og:url" content="https://hxs9712.github.io/tags/index.html">
+<meta name="description" content="内容简介哨兵，也可以理解为巡逻兵，当发现敌情的时候，会报告给总部，然后总部来处理敌情。 所以，哨兵模式也就是有一个单独执行的任务，这个任务就一直盯着主机，一旦主机挂掉，就立马通知从机，然后从机通过选举的方式，选出一个得票最高的从机来担任主机。 实现新建一个哨兵的配置文件，随便起一个名字，比如sentinel.conf，在文件中写入一行命令： 1sentinel monitor mySentinel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="哨兵模式详解">
+<meta property="og:url" content="https://hxs9712.github.io/2020/05/22/Redis/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="All Is Well">
+<meta property="og:description" content="内容简介哨兵，也可以理解为巡逻兵，当发现敌情的时候，会报告给总部，然后总部来处理敌情。 所以，哨兵模式也就是有一个单独执行的任务，这个任务就一直盯着主机，一旦主机挂掉，就立马通知从机，然后从机通过选举的方式，选出一个得票最高的从机来担任主机。 实现新建一个哨兵的配置文件，随便起一个名字，比如sentinel.conf，在文件中写入一行命令： 1sentinel monitor mySentinel">
 <meta property="og:locale">
-<meta property="article:published_time" content="2020-12-21T10:43:51.000Z">
-<meta property="article:modified_time" content="2020-12-21T10:57:08.380Z">
+<meta property="article:published_time" content="2020-05-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-11T10:55:22.560Z">
 <meta property="article:author" content="破茧化蝶">
+<meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
 
 
@@ -135,13 +136,13 @@
 
 
 
-  <link rel="canonical" href="https://hxs9712.github.io/tags/"/>
+  <link rel="canonical" href="https://hxs9712.github.io/2020/05/22/Redis/哨兵模式详解/"/>
 
 
 
 
 
-  <title>tags | All Is Well</title>
+  <title>哨兵模式详解 | All Is Well</title>
   
 
 
@@ -316,40 +317,215 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://hxs9712.github.io/2020/05/22/Redis/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="All Is Well">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">tags</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <div class="tag-cloud">
-            <div class="tag-cloud-title">
-                目前共计 9 个标签
-            </div>
-            <div class="tag-cloud-tags">
-              <a href="/tags/Composer/" style="font-size: 18px; color: #8e8e8e">Composer</a> <a href="/tags/Mysql/" style="font-size: 12px; color: #ccc">Mysql</a> <a href="/tags/Nginx/" style="font-size: 24px; color: #4f4f4f">Nginx</a> <a href="/tags/Redis/" style="font-size: 30px; color: #111">Redis</a> <a href="/tags/Windows/" style="font-size: 12px; color: #ccc">Windows</a> <a href="/tags/%E5%85%B6%E5%AE%83/" style="font-size: 12px; color: #ccc">其它</a> <a href="/tags/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F/" style="font-size: 12px; color: #ccc">微信小程序</a> <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" style="font-size: 12px; color: #ccc">虚拟机</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 18px; color: #8e8e8e">设计模式</a>
-            </div>
-          </div>
+          <h1 class="post-title" itemprop="name headline">哨兵模式详解</h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-22T00:00:00+08:00">
+                2020-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <h4 id="内容简介"><a href="#内容简介" class="headerlink" title="内容简介"></a>内容简介</h4><p>哨兵，也可以理解为巡逻兵，当发现敌情的时候，会报告给总部，然后总部来处理敌情。</p>
+<p>所以，哨兵模式也就是有一个单独执行的任务，这个任务就一直盯着主机，一旦主机挂掉，就立马通知从机，然后从机通过选举的方式，选出一个得票最高的从机来担任主机。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>新建一个哨兵的配置文件，随便起一个名字，比如sentinel.conf，在文件中写入一行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor mySentinel 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+<h5 id="命令解释"><a href="#命令解释" class="headerlink" title="命令解释"></a>命令解释</h5><p>sentinel monitor 哨兵监视</p>
+<p>mySentinel 自定义哨兵名字</p>
+<p>127.0.0.1 6379 需要被监视的主机ip和端口</p>
+<p>1 指明当有多少个sentinel认为一个master失效时，master才算真正失效，此处为1个</p>
+<h4 id="哨兵启动"><a href="#哨兵启动" class="headerlink" title="哨兵启动"></a>哨兵启动</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel &#x2F;path&#x2F;sentinel.conf</span><br></pre></td></tr></table></figure>
+<h5 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h5><p>/path/sentinel.conf应该用你自己真实的路径和文件名</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><h5 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h5><p>可以自动重新指定新的主机，以保证系统继续正常运行</p>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><p>哨兵是有延时的，选举新主机也是有延时，还是会造成系统暂时性的瘫痪</p>
+
       
     </div>
     
     
     
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>好活！当赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/21/Redis/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E8%AF%A6%E8%A7%A3/" rel="next" title="主从复制详解">
+                <i class="fa fa-chevron-left"></i> 主从复制详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/23/Redis/Redis%E4%BA%8B%E5%8A%A1%E5%92%8CMysql%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%8C%BA%E5%88%AB/" rel="prev" title="Redis事务和Mysql事务的却别">
+                Redis事务和Mysql事务的却别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -384,8 +560,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://wx.qlogo.cn/mmopen/vi_32/olhhB8ndD8h5fz1693o7uv8XAs3MSomEjEYtWUsWvKJ8dialLicicibKHCLicaYNtkSTJibruX9UvKP6KiagC1tmibt3Wg/132"
@@ -454,6 +639,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">内容简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A7%A3%E9%87%8A"><span class="nav-number">2.1.</span> <span class="nav-text">命令解释</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%A8%E5%85%B5%E5%90%AF%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">哨兵启动</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="nav-number">3.1.</span> <span class="nav-text">注意</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="nav-number">4.1.</span> <span class="nav-text">优点：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-number">4.2.</span> <span class="nav-text">缺点</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -596,10 +797,10 @@
 
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
 
-  
+
 
   
 
